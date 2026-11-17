@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SBP Guard · Risco Cidadão</title>
+<style>
+  :root {
+    --fundo: #f3f6f6; --card: #ffffff; --texto: #1d272a; --suave: #5b6a6e; --borda: #dde5e6;
+    --azul: #0f7a72; --sobre-azul: #fff; --slate: #263236; --marca-teal: #2ab0b8; --marca-verde: #2db85c;
+    --critica: #c62828; --alta: #e0661b; --media: #c99a06; --baixa: #2e8b57; --ok: #2e8b57;
+    --chip: #eef4f4; --sombra: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(20,40,45,.06);
+    --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --fundo: #0e1416; --card: #172024; --texto: #e6eeee; --suave: #9fb1b4; --borda: #273338;
+            --azul: #3cc7bd; --sobre-azul: #0c1214; --chip: #1e2a2e; --critica: #ff6b6b; --alta: #ff9a52;
+            --media: #f2c94c; --baixa: #5fd08f; --ok: #5fd08f; --sombra: none; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--texto); font: 15px/1.5 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; }
+  header { background: var(--slate); color: #fff; padding: 14px max(20px, calc((100% - 1320px)/2 + 20px));
+           display: flex; align-items: center; gap: 18px; border-bottom: 3px solid var(--marca-verde); flex-wrap: wrap; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo b { font-size: 20px; letter-spacing: .5px; }
+  .logo small { display: block; font-size: 11px; opacity: .75; margin-top: -2px; }
+  .titulo { font-weight: 600; font-size: 16px; padding-left: 18px; border-left: 1px solid rgba(255,255,255,.2); }
+  .direita { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 13px; }
+  .direita span { opacity: .8; }
+  button { font: inherit; cursor: pointer; border-radius: 10px; border: 1px solid var(--borda); background: var(--card); color: var(--texto); padding: 8px 14px; }
+  button.primario { background: var(--marca-verde); color: #08240f; border-color: transparent; font-weight: 700; }
+  button.primario:disabled { opacity: .6; cursor: wait; }
+  main { max-width: 1320px; margin: 0 auto; padding: 20px; display: grid; gap: 18px; }
+  .card { background: var(--card); border: 1px solid var(--borda); border-radius: 16px; padding: 20px; box-shadow: var(--sombra); min-width: 0; }
+  h2 { margin: 0 0 14px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--suave); display: flex; align-items: center; gap: 8px; }
+  h2::before { content: ""; width: 4px; height: 14px; border-radius: 2px; background: var(--marca-teal); }
+  .grade-topo { display: grid; grid-template-columns: 1.05fr 1fr; gap: 18px; }
+  @media (max-width: 960px) { .grade-topo, .duas { grid-template-columns: 1fr !important; } }
+  .segmento { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--borda); border-radius: 12px; overflow: hidden; margin-bottom: 8px; }
+  .segmento button { border: 0; border-radius: 0; padding: 10px 6px; background: transparent; font-size: 13px; line-height: 1.25; }
+  .segmento button + button { border-left: 1px solid var(--borda); }
+  .segmento button[aria-pressed="true"] { background: var(--azul); color: var(--sobre-azul); font-weight: 700; }
+  .medidor { display: grid; grid-template-columns: 300px 1fr; gap: 18px; align-items: center; }
+  @media (max-width: 560px) { .medidor { grid-template-columns: 1fr; } }
+  .medidor svg { width: 100%; height: auto; }
+  .indice { font-size: 64px; font-weight: 800; line-height: 1; letter-spacing: -2px; }
+  .faixa { display: inline-block; margin-top: 6px; padding: 3px 12px; border-radius: 999px; font-weight: 700; font-size: 13px; color: #fff; }
+  .frase { color: var(--suave); margin: 12px 0 0; }
+  .kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .kpi { background: var(--chip); border-radius: 12px; padding: 14px; }
+  .kpi b { display: block; font-size: 30px; line-height: 1.1; }
+  .kpi span { color: var(--suave); font-size: 13px; }
+  .kpi .seta { font-size: 18px; color: var(--suave); font-weight: 600; }
+  .alertas { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .alerta { border: 1px solid var(--borda); border-left: 5px solid var(--c, var(--media)); border-radius: 12px; padding: 14px 16px; background: var(--card); }
+  .alerta h3 { margin: 4px 0 8px; font-size: 16px; }
+  .alerta p { margin: 6px 0; font-size: 14px; }
+  .alerta .rot { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--suave); display: block; }
+  .alerta .onde { font-family: var(--mono); font-size: 12px; color: var(--suave); }
+  .alerta .fonte { font-size: 11px; color: var(--suave); margin-top: 8px; }
+  .sev { display: inline-block; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; padding: 2px 8px; border-radius: 6px; color: #fff; }
+  .s-critica { background: var(--critica); } .s-alta { background: var(--alta); } .s-media { background: var(--media); color: #1d1600; } .s-baixa { background: var(--baixa); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-size: 12px; color: var(--suave); font-weight: 600; padding: 8px; border-bottom: 1px solid var(--borda); }
+  td { padding: 10px 8px; border-bottom: 1px solid var(--borda); vertical-align: top; }
+  td code, .mono { font-family: var(--mono); font-size: 12px; word-break: break-word; }
+  .rolagem { overflow-x: auto; }
+  .status { font-weight: 800; font-size: 12px; }
+  .st-VAZAMENTO { color: var(--critica); } .st-BLOQUEADO { color: var(--ok); } .st-PERMITIDO { color: var(--suave); }
+  .duas { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .barras { display: grid; gap: 12px; }
+  .barra-linha { display: grid; grid-template-columns: 150px 1fr; gap: 10px; align-items: center; font-size: 13px; }
+  .trilho { position: relative; height: 26px; background: var(--chip); border-radius: 7px; overflow: hidden; display: grid; }
+  .trilho i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 7px; transition: width .6s ease; }
+  .trilho em { position: relative; z-index: 1; font-style: normal; font-weight: 700; padding-left: 8px; align-self: center; font-size: 12px; }
+  .legenda { display: flex; gap: 16px; font-size: 12px; color: var(--suave); margin-top: 10px; flex-wrap: wrap; }
+  .legenda i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  #progresso { display: none; }
+  #progresso.ativo { display: block; }
+  #passos { list-style: none; margin: 0; padding: 0; font-family: var(--mono); font-size: 13px; max-height: 260px; overflow: auto; }
+  #passos li { padding: 3px 0; border-bottom: 1px dashed var(--borda); }
+  #passos li b { color: var(--azul); }
+  .barra-prog { height: 6px; background: var(--chip); border-radius: 3px; overflow: hidden; margin-bottom: 10px; }
+  .barra-prog i { display: block; height: 100%; background: linear-gradient(90deg, var(--marca-teal), var(--marca-verde)); width: 0; transition: width .4s; }
+  .selo { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; background: var(--chip); }
+  .selo .p { width: 9px; height: 9px; border-radius: 50%; background: var(--ok); }
+  .selo.falha .p { background: var(--critica); }
+  .nota { color: var(--suave); font-size: 13px; }
+  .vazio { color: var(--suave); padding: 10px 0; }
+  .cats { display: grid; gap: 8px; }
+  footer { text-align: center; color: var(--suave); font-size: 12px; padding: 4px 0 24px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2ab0b8"/><stop offset="1" stop-color="#2db85c"/></linearGradient></defs>
+      <path d="M32 4 8 13v17c0 15 10 26 24 30 14-4 24-15 24-30V13Z" fill="url(#g)"/><path d="m22 32 7 7 14-15" fill="none" stroke="#0c1f12" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div><b>SBP Guard</b><small>Smart Bus Point · Cybersecurity</small></div>
+  </div>
+  <div class="titulo">Painel Executivo — Risco Cidadão</div>
+  <div class="direita"><span id="gerado">—</span><button class="primario" id="bRodar" title="Roda motor PII, taint analysis, guardião e IA">Rodar auditoria</button></div>
+</header>
+
+<main>
+  <section class="card" id="progresso" aria-live="polite">
+    <h2>Auditoria em andamento</h2>
+    <div class="barra-prog"><i id="progBarra"></i></div>
+    <ul id="passos"></ul>
+  </section>
+
+  <div class="grade-topo">
+    <section class="card">
+      <h2>Indicador de Risco Cidadão</h2>
+      <div class="segmento" id="cenarios" role="group" aria-label="Cenário"></div>
+      <div class="medidor">
+        <svg viewBox="0 0 300 175" role="img" aria-labelledby="indiceTxt">
+          <path d="M30 150 A120 120 0 0 1 270 150" fill="none" stroke="var(--chip)" stroke-width="26" stroke-linecap="round"/>
+          <path id="arco" d="M30 150 A120 120 0 0 1 270 150" fill="none" stroke="var(--baixa)" stroke-width="26" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100" style="transition: stroke-dasharray .8s ease, stroke .4s"/>
+          <text x="30" y="172" font-size="11" fill="var(--suave)" text-anchor="middle">0</text>
+          <text x="270" y="172" font-size="11" fill="var(--suave)" text-anchor="middle">100</text>
+        </svg>
+        <div>
+          <div class="indice" id="indiceTxt">—</div>
+          <span class="faixa" id="faixa">—</span>
+          <p class="frase" id="frase"></p>
+        </div>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Antes × depois do SBP Guard</h2>
+      <div class="kpis" id="kpis"></div>
+      <p class="nota" style="margin:12px 0 0">Números do teste em tempo de execução com 4 pedidos fictícios de Embarque Assistido. Nada foi enviado para a internet.</p>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>O que isso significa para o cidadão <span class="nota" id="iaInfo" style="text-transform:none;letter-spacing:0;font-weight:400"></span></h2>
+    <div class="alertas" id="alertas"></div>
+  </section>
+
+  <section class="card">
+    <h2>Taint analysis — de onde o dado vem e onde ele vaza</h2>
+    <div class="rolagem"><table>
+      <thead><tr><th>Status</th><th>Severidade</th><th>Origem do dado</th><th>Destino (sink)</th><th>Dados</th></tr></thead>
+      <tbody id="fluxos"></tbody>
+    </table></div>
+    <p class="nota" id="sanitNota"></p>
+  </section>
+
+  <div class="duas">
+    <section class="card">
+      <h2>Guardião em tempo de execução</h2>
+      <div class="barras" id="runtime"></div>
+      <div class="legenda"><span><i style="background:var(--critica)"></i>sem proteção: dados pessoais que chegaram</span><span><i style="background:var(--ok)"></i>com SBP Guard: saídas bloqueadas</span></div>
+    </section>
+    <section class="card">
+      <h2>Composição do risco por tipo de dado</h2>
+      <div class="cats" id="cats"></div>
+      <p class="nota" style="margin-top:12px">Índice = 100 × (1 − e<sup>−pontos/30</sup>); pontos = severidade × peso do dado × exposição do destino. Cálculo determinístico, sem IA.</p>
+    </section>
+  </div>
+
+  <div class="duas">
+    <section class="card">
+      <h2>Motor de parsing PII</h2>
+      <div class="kpis" id="motorKpis" style="margin-bottom:14px"></div>
+      <div class="rolagem"><table>
+        <thead><tr><th>Regra</th><th>Acertos</th><th>Falsos +</th><th>Falsos −</th><th>Precisão</th></tr></thead>
+        <tbody id="regras"></tbody>
+      </table></div>
+    </section>
+    <section class="card">
+      <h2>Dados sensíveis encontrados no código e nos arquivos</h2>
+      <div class="rolagem"><table>
+        <thead><tr><th>Severidade</th><th>Tipo</th><th>Onde</th><th>Valor (mascarado)</th></tr></thead>
+        <tbody id="pii"></tbody>
+      </table></div>
+      <p style="margin-top:14px"><span class="selo" id="selo"><span class="p"></span><span id="seloTxt">—</span></span></p>
+    </section>
+  </div>
+</main>
+<footer>SBP Guard · FIAP Global Solution 2026.2 · CitizenTech · nenhum valor sensível é exibido: só máscara e impressão digital (SHA-256)</footer>
+
+<script src="relatorio.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+const SEV = { critica: 'crítica', alta: 'alta', media: 'média', baixa: 'baixa' };
+const COR_FAIXA = { 'crítico': 'var(--critica)', 'alto': 'var(--alta)', 'moderado': 'var(--media)', 'baixo': 'var(--baixa)' };
+const CENARIOS = [
+  { id: 'antes', rot: 'Sem proteção', sub: 'Embarque v1', alvo: 'v1',
+    frase: 'A versão 1 do Embarque Assistido manda CPF, condição de saúde e telefone para o broker MQTT público, para o log, para a IA e para um CSV.' },
+  { id: 'guardiao', rot: 'Com SBP Guard', sub: 'v1 + guardião', alvo: 'v1',
+    frase: 'O mesmo código vulnerável, mas cada saída passa pelo guardião: o caminho do vazamento ainda existe no código, só que o dado não sai.' },
+  { id: 'corrigido', rot: 'Corrigido', sub: 'Embarque v2', alvo: 'v2',
+    frase: 'A versão 2 minimiza e pseudonimiza: o broker público recebe só ponto, linha e um id; o tipo de apoio vai por canal autenticado.' },
+  { id: 'sbp', rot: 'SBP real', sub: 'repositório IoT', alvo: 'sbp',
+    frase: 'Auditoria do código real do totem e do servidor: o login na SPTrans pode cair para HTTP levando o token, e partes do token aparecem no log.' },
+];
+let R = null, atual = 'antes';
+
+function desenhar() {
+  if (!R) return;
+  $('gerado').textContent = 'Gerado em ' + R.gerado_em + ' · ' + R.duracao_s + ' s';
+  const cont = $('cenarios'); cont.textContent = '';
+  CENARIOS.filter(c => R.risco[c.id]).forEach(c => {
+    const b = el('button'); b.setAttribute('aria-pressed', c.id === atual);
+    b.append(el('b', null, c.rot), el('br'), el('small', null, c.sub + ' · ' + R.risco[c.id].indice));
+    b.onclick = () => { atual = c.id; desenhar(); };
+    cont.append(b);
+  });
+  const c = CENARIOS.find(x => x.id === atual), r = R.risco[atual];
+  $('indiceTxt').textContent = r.indice;
+  $('faixa').textContent = 'risco ' + r.faixa; $('faixa').style.background = COR_FAIXA[r.faixa];
+  $('arco').setAttribute('stroke-dasharray', Math.max(r.indice, 0.5) + ' 100'); $('arco').setAttribute('stroke', COR_FAIXA[r.faixa]);
+  $('frase').textContent = c.frase;
+  kpis(); alertas(c); fluxos(c); runtime(); cats(r); motor();
+}
+
+function kpi(alvo, valor, rot, antes) {
+  const d = el('div', 'kpi'), b = el('b');
+  if (antes != null) { b.append(el('span', 'seta', antes + ' → ')); }
+  b.append(document.createTextNode(valor)); d.append(b, el('span', null, rot)); alvo.append(d);
+}
+function kpis() {
+  const k = $('kpis'); k.textContent = '';
+  const rt = Object.fromEntries(R.runtime.map(x => [x.cenario, x]));
+  kpi(k, rt.guardiao.total_vazado, 'dados pessoais chegando em saídas inseguras', rt.antes.total_vazado);
+  kpi(k, rt.guardiao.guardiao.bloqueado, 'saídas inseguras bloqueadas pelo guardião');
+  const v1 = R.alvos.find(a => a.id === 'v1'), v2 = R.alvos.find(a => a.id === 'v2');
+  kpi(k, v2.fluxos_agrupados.filter(f => f.status === 'VAZAMENTO').length, 'caminhos de vazamento no código (taint)', v1.fluxos_agrupados.filter(f => f.status === 'VAZAMENTO').length);
+  kpi(k, rt.guardiao.pedidos_atendidos + '/' + rt.guardiao.pedidos, 'pedidos atendidos mesmo com bloqueio');
+}
+
+function alertas(c) {
+  const box = $('alertas'); box.textContent = '';
+  const a = R.alvos.find(x => x.id === c.alvo);
+  const itens = [...a.fluxos_agrupados.filter(f => f.status === 'VAZAMENTO'), ...a.pii.filter(p => R.alertas[p.id])];
+  const est = R.ia.estatisticas;
+  $('iaInfo').textContent = '· alertas escritos por IA local (' + R.ia.modelo + '), sem enviar dado pessoal ao modelo';
+  if (!itens.length) { box.append(el('p', 'vazio', 'Nenhuma falha encontrada neste cenário. O código só publica dados minimizados e pseudonimizados.')); return; }
+  itens.forEach(it => {
+    const al = R.alertas[it.id]; if (!al) return;
+    const bloqueado = atual === 'guardiao' && it.sink && R.destinos_bloqueados.includes(mapaDestino(it.sink.tipo));
+    const d = el('article', 'alerta'); d.style.setProperty('--c', bloqueado ? 'var(--ok)' : 'var(--' + al.severidade + ')');
+    const topo = el('div'); topo.append(el('span', 'sev s-' + (bloqueado ? 'baixa' : al.severidade), bloqueado ? 'bloqueado' : SEV[al.severidade]));
+    topo.append(document.createTextNode(' '), el('span', 'onde', it.sink ? it.arquivo + ':' + it.sink.linha : it.arquivo + ':' + it.linha));
+    d.append(topo, el('h3', null, al.titulo));
+    [['Risco para você', al.risco_cidadao], ['LGPD', al.impacto], ['Como corrigir', al.como_corrigir]].forEach(([r, t]) => {
+      const p = el('p'); p.append(el('span', 'rot', r), document.createTextNode(t)); d.append(p);
+    });
+    if (bloqueado) { const p = el('p'); p.append(el('span', 'rot', 'Agora'), document.createTextNode('O guardião bloqueia essa saída em tempo de execução.')); d.append(p); }
+    d.append(el('div', 'fonte', 'Texto: ' + (al.fonte || '')));
+    box.append(d);
+  });
+}
+const mapaDestino = t => ({ mqtt_publico: 'mqtt_publico', mqtt: 'mqtt_publico', log: 'log', console: 'log', llm: 'llm', arquivo: 'arquivo_texto' })[t];
+
+function fluxos(c) {
+  const tb = $('fluxos'); tb.textContent = '';
+  const a = R.alvos.find(x => x.id === c.alvo);
+  if (!a.fluxos_agrupados.length) { const tr = el('tr'); const td = el('td', 'vazio', 'Nenhum fluxo de dado sensível chega a uma saída insegura.'); td.colSpan = 5; tr.append(td); tb.append(tr); }
+  a.fluxos_agrupados.forEach(f => {
+    const tr = el('tr');
+    const bloq = atual === 'guardiao' && R.destinos_bloqueados.includes(mapaDestino(f.sink.tipo));
+    const st = bloq ? 'BLOQUEADO' : f.status;
+    tr.append(el('td', 'status st-' + st, st));
+    const s = el('td'); s.append(el('span', 'sev s-' + f.severidade, SEV[f.severidade])); tr.append(s);
+    const o = el('td'); o.append(el('div', null, f.fonte.descricao), el('div', 'mono', f.arquivo + ':' + f.fonte.linha)); tr.append(o);
+    const k = el('td'); k.append(el('div', null, f.sink.descricao), el('code', null, 'L' + f.sink.linha + '  ' + f.sink.codigo)); tr.append(k);
+    tr.append(el('td', null, f.dados.join(', ')));
+    tb.append(tr);
+  });
+  $('sanitNota').textContent = a.sanitizados.length ? 'Proteções reconhecidas no código: ' + a.sanitizados.map(s => 'L' + s.linha + ' ' + s.codigo.slice(0, 60)).join(' · ') : '';
+}
+
+function runtime() {
+  const box = $('runtime'); box.textContent = '';
+  const rt = Object.fromEntries(R.runtime.map(x => [x.cenario, x]));
+  const antes = rt.antes.dados_pessoais_que_chegaram_nas_saidas;
+  const bloq = {}; rt.guardiao.eventos.forEach(e => { if (e.acao === 'bloqueado') { const k = e.contexto.startsWith('print') ? 'console' : e.destino; bloq[k] = (bloq[k] || 0) + 1; } });
+  const nomes = { mqtt_publico: 'Broker MQTT público', log: 'Log da aplicação', llm: 'Prompt da IA', arquivo_texto: 'Arquivo CSV', console: 'Console (print)' };
+  const max = Math.max(...Object.values(antes), 1);
+  Object.keys(nomes).forEach(k => {
+    const linha = el('div', 'barra-linha'); linha.append(el('span', null, nomes[k]));
+    const col = el('div'); col.style.display = 'grid'; col.style.gap = '4px';
+    [['var(--critica)', antes[k] || 0, (antes[k] || 0) + ' dado(s) vazaram'], ['var(--ok)', bloq[k] || 0, (bloq[k] || 0) + ' bloqueio(s) · 0 vazou']].forEach(([cor, v, t]) => {
+      const tr = el('div', 'trilho'); const i = el('i'); i.style.background = cor; i.style.opacity = '.85'; i.style.width = (100 * v / max) + '%';
+      tr.append(i, el('em', null, t)); col.append(tr);
+    });
+    linha.append(col); box.append(linha);
+  });
+}
+
+function cats(r) {
+  const box = $('cats'); box.textContent = '';
+  const nomes = { saude: 'Saúde (LGPD art. 11)', credencial: 'Credenciais e tokens', identificador: 'Identificação (nome, CPF)', contato: 'Contato', financeiro: 'Financeiro' };
+  const ent = Object.entries(r.por_categoria).sort((a, b) => b[1] - a[1]);
+  if (!ent.length) { box.append(el('p', 'vazio', 'Sem pontos de risco neste cenário.')); return; }
+  const max = Math.max(...ent.map(e => e[1]), 1);
+  ent.forEach(([k, v]) => {
+    const linha = el('div', 'barra-linha'); linha.append(el('span', null, nomes[k] || k));
+    const tr = el('div', 'trilho'); const i = el('i'); i.style.background = 'linear-gradient(90deg,var(--marca-teal),var(--azul))'; i.style.width = (100 * v / max) + '%';
+    tr.append(i, el('em', null, v + ' pts')); linha.append(tr); box.append(linha);
+  });
+}
+
+function motor() {
+  const m = R.metricas_pii, k = $('motorKpis'); k.textContent = '';
+  kpi(k, (100 * m.geral.precisao).toFixed(1) + '%', 'precisão (' + (m.amostras_positivas + m.amostras_negativas) + ' amostras rotuladas)');
+  kpi(k, (100 * m.geral.recall).toFixed(1) + '%', 'recall · ' + R.regras.texto + ' regras de texto + ' + R.regras.campos + ' de campo');
+  const sbp = R.alvos.find(a => a.id === 'sbp');
+  if (sbp) kpi(k, sbp.pii.length, 'achado(s) em ' + sbp.arquivos + ' arquivos (' + sbp.megabytes + ' MB) do SBP real — telemetria e GTFS sem falso positivo');
+  const tb = $('regras'); tb.textContent = '';
+  Object.entries(m.por_regra).forEach(([id, x]) => {
+    if (!x.vp && !x.fp && !x.fn) return;
+    const tr = el('tr'); [id, x.vp, x.fp, x.fn, x.precisao == null ? '—' : (100 * x.precisao).toFixed(1) + '%'].forEach((v, i) => tr.append(el('td', i ? null : 'mono', String(v)))); tb.append(tr);
+  });
+  const pb = $('pii'); pb.textContent = '';
+  R.alvos.forEach(a => a.pii.forEach(p => {
+    const tr = el('tr'); const s = el('td'); s.append(el('span', 'sev s-' + p.severidade, SEV[p.severidade])); tr.append(s);
+    tr.append(el('td', null, p.nome), el('td', 'mono', p.arquivo + ':' + p.linha));
+    const v = el('td'); v.append(el('code', null, p.mascara)); if (p.nota) v.append(el('div', 'nota', p.nota)); tr.append(v); pb.append(tr);
+  }));
+  if (!pb.children.length) { const tr = el('tr'); const td = el('td', 'vazio', 'Nenhum dado sensível em repouso.'); td.colSpan = 4; tr.append(td); pb.append(tr); }
+  const ok = !R.verificacao || R.verificacao.ok;
+  $('selo').classList.toggle('falha', !ok);
+  $('seloTxt').textContent = R.verificacao ? 'Verificação: ' + R.verificacao.resumo + ' (' + R.verificacao.arquivos + ' arquivos)' : 'Relatório sem valores brutos';
+}
+
+async function carregar() {
+  try { const r = await fetch('relatorio.json', { cache: 'no-store' }); if (r.ok) { R = await r.json(); return desenhar(); } } catch (e) { }
+  if (window.RELATORIO) { R = window.RELATORIO; desenhar(); }
+}
+
+$('bRodar').onclick = async () => {
+  if (location.protocol === 'file:') { alert('Para rodar daqui, abra pelo servidor: python -m sbp_guard painel'); return; }
+  $('bRodar').disabled = true; $('bRodar').textContent = 'Auditando…';
+  $('progresso').classList.add('ativo'); $('passos').textContent = ''; $('progBarra').style.width = '0';
+  const r = await fetch('/api/auditar', { method: 'POST' });
+  if (!r.ok && r.status !== 409) { $('bRodar').disabled = false; $('bRodar').textContent = 'Rodar auditoria'; return; }
+  let vistos = 0;
+  const t = setInterval(async () => {
+    const p = await (await fetch('/api/progresso', { cache: 'no-store' })).json();
+    p.eventos.slice(vistos).forEach(e => { const li = el('li'); li.append(el('b', null, '[' + e.passo + '/' + e.total + '] '), document.createTextNode(e.texto)); $('passos').append(li); $('passos').scrollTop = 1e6; $('progBarra').style.width = (100 * e.passo / e.total) + '%'; });
+    vistos = p.eventos.length;
+    if (!p.rodando) {
+      clearInterval(t); $('progBarra').style.width = '100%';
+      $('bRodar').disabled = false; $('bRodar').textContent = 'Rodar auditoria';
+      await carregar();
+    }
+  }, 400);
+};
+carregar();
+</script>
+</body>
+</html>

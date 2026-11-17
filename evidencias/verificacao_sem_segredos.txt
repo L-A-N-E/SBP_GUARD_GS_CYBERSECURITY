@@ -1,0 +1,6 @@
+Verificação automática de vazamento nos artefatos do SBP Guard
+17/11/2026 19:58
+
+Valores sensíveis encontrados na varredura (guardados só em memória): 17
+Arquivos gerados verificados: 10
+Resultado: OK — nenhum valor sensível nos arquivos gerados

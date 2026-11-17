@@ -1,0 +1,104 @@
+{
+ "amostras_positivas": 156,
+ "amostras_negativas": 31,
+ "por_regra": {
+  "bearer": {
+   "vp": 12,
+   "fp": 0,
+   "fn": 0,
+   "precisao": 1.0,
+   "recall": 1.0
+  },
+  "cartao_credito": {
+   "vp": 12,
+   "fp": 0,
+   "fn": 0,
+   "precisao": 1.0,
+   "recall": 1.0
+  },
+  "cartao_sus": {
+   "vp": 12,
+   "fp": 0,
+   "fn": 0,
+   "precisao": 1.0,
+   "recall": 1.0
+  },
+  "chave_conhecida": {
+   "vp": 12,
+   "fp": 0,
+   "fn": 0,
+   "precisao": 1.0,
+   "recall": 1.0
+  },
+  "cid10": {
+   "vp": 12,
+   "fp": 0,
+   "fn": 0,
+   "precisao": 1.0,
+   "recall": 1.0
+  },
+  "condicao_saude": {
+   "vp": 24,
+   "fp": 0,
+   "fn": 0,
+   "precisao": 1.0,
+   "recall": 1.0
+  },
+  "cpf": {
+   "vp": 48,
+   "fp": 0,
+   "fn": 0,
+   "precisao": 1.0,
+   "recall": 1.0
+  },
+  "data_nascimento": {
+   "vp": 12,
+   "fp": 0,
+   "fn": 0,
+   "precisao": 1.0,
+   "recall": 1.0
+  },
+  "email": {
+   "vp": 12,
+   "fp": 0,
+   "fn": 0,
+   "precisao": 1.0,
+   "recall": 1.0
+  },
+  "nome_rotulado": {
+   "vp": 12,
+   "fp": 0,
+   "fn": 0,
+   "precisao": 1.0,
+   "recall": 1.0
+  },
+  "senha_atribuida": {
+   "vp": 12,
+   "fp": 0,
+   "fn": 0,
+   "precisao": 1.0,
+   "recall": 1.0
+  },
+  "telefone": {
+   "vp": 24,
+   "fp": 1,
+   "fn": 0,
+   "precisao": 0.96,
+   "recall": 1.0
+  }
+ },
+ "geral": {
+  "vp": 204,
+  "fp": 1,
+  "fn": 0,
+  "precisao": 0.995,
+  "recall": 1.0
+ },
+ "erros": [
+  {
+   "tipo": "falso positivo",
+   "regra": "telefone",
+   "amostra": "ônibus (**) *****-**99 de frota"
+  }
+ ]
+}

@@ -1,0 +1,98 @@
+{
+ "4fbdc7abbbfdede6": {
+  "titulo": "Dado sensível trafega em HTTP",
+  "risco_cidadao": "Pode expor credenciais em caso de falha de HTTPS.",
+  "impacto": "Contraria a LGPD art. 46 (dever de segurança).",
+  "como_corrigir": "Remova as URLs http:// da lista de bases e gere um erro se o HTTPS falhar.",
+  "severidade": "alta",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "87eda7655ea314aa": {
+  "titulo": "Dado sensível trafega em HTTP",
+  "risco_cidadao": "Pode expor credenciais em caso de falha de HTTPS, levando a roubos de identidade.",
+  "impacto": "Contraria a LGPD art. 46 (dever de segurança).",
+  "como_corrigir": "Remova as URLs http:// da lista de bases e gere um erro se o HTTPS falhar.",
+  "severidade": "alta",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "d763b001b889d51a": {
+  "titulo": "Credencial impressa no console",
+  "risco_cidadao": "Exposição do token de acesso, podendo ser usado por maliciosos.",
+  "impacto": "Contraria a LGPD art. 46 (dever de segurança).",
+  "como_corrigir": "Remova a impressão do token no console e registre apenas que a credencial foi carregada com sucesso.",
+  "severidade": "baixa",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "331a9de6d8da63fd": {
+  "titulo": "Credencial impressa no console",
+  "risco_cidadao": "Exposição do segredo pode permitir acesso não autorizado.",
+  "impacto": "Contraria a LGPD art. 46 (dever de segurança).",
+  "como_corrigir": "Remova a impressão do token e registre apenas que a credencial foi carregada.",
+  "severidade": "baixa",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "3dcd83ea67b99821": {
+  "titulo": "Credencial em arquivo .env",
+  "risco_cidadao": "Pode expor credenciais sensíveis, levando a possíveis ataques.",
+  "impacto": "Contraria a Art. 46 — segurança dos dados (credencial de acesso).",
+  "como_corrigir": "Manter o .env fora do git, com permissão restrita, e em produção usar um cofre de segredos.",
+  "severidade": "media",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "a419c8e0d88246ed": {
+  "titulo": "Dado de saúde exposto publicamente",
+  "risco_cidadao": "Pode ser usado para discriminação ou golpes.",
+  "impacto": "Contraria a LGPD art. 11 (dado sensível de saúde).",
+  "como_corrigir": "Apenas publique um ponto, linha e um ID pseudônimo. Use um broker privado com TLS e autenticação para o resto do conteúdo.",
+  "severidade": "critica",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "3e49e9a76d90ac07": {
+  "titulo": "Vazamento de dados sensíveis",
+  "risco_cidadao": "Pode expor diagnósticos pessoais, levando a discriminação ou uso indevido.",
+  "impacto": "Contraria a LGPD art. 11 (dado sensível de saúde).",
+  "como_corrigir": "Anonimize os dados antes de enviar para a IA, usando categorias gerais como 'apoio_visual' em vez de nomes, CPFs ou diagnósticos específicos.",
+  "severidade": "critica",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "7ebbec24cc9768c4": {
+  "titulo": "Log exibe dados de saúde sensíveis",
+  "risco_cidadao": "Pode expor informações de saúde, levando a discriminação ou uso indevido.",
+  "impacto": "Contraria a LGPD art. 11 (dado sensível de saúde).",
+  "como_corrigir": "Modifique o código para registrar apenas um identificador pseudonimizado e o ponto/linha, não o objeto 'dados' inteiro.",
+  "severidade": "alta",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "a513128c047cc5ca": {
+  "titulo": "Gravação de dados sensíveis de saúde",
+  "risco_cidadao": "Pode expor informações pessoais e de saúde, levando a discriminação ou uso indevido.",
+  "impacto": "Contraria a LGPD art. 11 (dado sensível de saúde).",
+  "como_corrigir": "Não grava os dados pessoais em texto puro; criptografe e restrinja o acesso.",
+  "severidade": "alta",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "3963e0a089ca877d": {
+  "titulo": "Dado pessoal exposto no console",
+  "risco_cidadao": "Exposição do número de telefone pode ser usado para golpes.",
+  "impacto": "Contraria a LGPD art. 6º, III (necessidade) e art. 46 (segurança).",
+  "como_corrigir": "Remova a impressão do número de telefone no console. Registre apenas que a credencial foi carregada com sucesso.",
+  "severidade": "media",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "e3dc76a0b818e7bc": {
+  "titulo": "Credencial impressa no console",
+  "risco_cidadao": "Exposição de credenciais sensíveis.",
+  "impacto": "Contraria a LGPD art. 46 (dever de segurança).",
+  "como_corrigir": "Remova a impressão do token e registre apenas que a credencial foi carregada.",
+  "severidade": "baixa",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "f791a86259a00740": {
+  "titulo": "Dado pessoal exposto no console",
+  "risco_cidadao": "Pode expor telefone da pessoa com deficiência, levando a possíveis abusos.",
+  "impacto": "Contraria a LGPD art. 6º, III (necessidade) e art. 46 (segurança).",
+  "como_corrigir": "Remova a impressão de 'dados['nome']' e 'dados['telefone']' no print. Use um identificador pseudonimizado do pedido em seu lugar.",
+  "severidade": "media",
+  "fonte": "IA local (qwen2.5:7b)"
+ }
+}

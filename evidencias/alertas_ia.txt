@@ -1,0 +1,51 @@
+Alertas gerados pela IA (qwen2.5:7b, local) — o que cada falha significa para o cidadão
+
+[b3b7adeab4] Dado sensível trafega em HTTP  (alta · fonte: IA local (qwen2.5:7b))
+   Risco para o cidadão: Pode expor credenciais em caso de falha de HTTPS.
+   Impacto: Contraria a LGPD art. 46 (dever de segurança).
+   Como corrigir: Remova as URLs http:// da lista de bases e gere um erro se o HTTPS falhar.
+
+[c2d340d35f] Dado sensível trafega em HTTP  (alta · fonte: IA local (qwen2.5:7b))
+   Risco para o cidadão: Pode expor credenciais em caso de falha de HTTPS, levando a roubos de identidade.
+   Impacto: Contraria a LGPD art. 46 (dever de segurança).
+   Como corrigir: Remova as URLs http:// da lista de bases e gere um erro se o HTTPS falhar.
+
+[137bdbeb61] Credencial impressa no console  (baixa · fonte: IA local (qwen2.5:7b))
+   Risco para o cidadão: Exposição do token de acesso, podendo ser usado por maliciosos.
+   Impacto: Contraria a LGPD art. 46 (dever de segurança).
+   Como corrigir: Remova a impressão do token no console e registre apenas que a credencial foi carregada com sucesso.
+
+[11e13569be] Credencial impressa no console  (baixa · fonte: IA local (qwen2.5:7b))
+   Risco para o cidadão: Exposição de credenciais sensíveis.
+   Impacto: Contraria a LGPD art. 46 (dever de segurança).
+   Como corrigir: Remova a impressão do token e registre apenas que a credencial foi carregada.
+
+[4ea35331e6] Credencial em arquivo .env  (media · fonte: IA local (qwen2.5:7b))
+   Risco para o cidadão: Pode expor credenciais sensíveis, levando a possíveis ataques.
+   Impacto: Contraria a Art. 46 — segurança dos dados (credencial de acesso).
+   Como corrigir: Manter o .env fora do git, com permissão restrita, e em produção usar um cofre de segredos.
+
+[2048e8985d] Dado de saúde exposto publicamente  (critica · fonte: IA local (qwen2.5:7b))
+   Risco para o cidadão: Pode ser usado para discriminação ou golpes.
+   Impacto: Contraria a LGPD art. 11 (dado sensível de saúde).
+   Como corrigir: Apenas publique um ponto, linha e um ID pseudônimo. Use um broker privado com TLS e autenticação para o resto do conteúdo.
+
+[e9ad2744cc] Vazamento de dados sensíveis  (critica · fonte: IA local (qwen2.5:7b))
+   Risco para o cidadão: Pode expor diagnósticos pessoais, levando a discriminação ou uso indevido.
+   Impacto: Contraria a LGPD art. 11 (dado sensível de saúde).
+   Como corrigir: Anonimize os dados antes de enviar para a IA, usando categorias gerais como 'apoio_visual' em vez de nomes, CPFs ou diagnósticos específicos.
+
+[4a538bbbdb] Log exibe dados de saúde sensíveis  (alta · fonte: IA local (qwen2.5:7b))
+   Risco para o cidadão: Pode expor informações de saúde, levando a discriminação ou uso indevido.
+   Impacto: Contraria a LGPD art. 11 (dado sensível de saúde).
+   Como corrigir: Modifique o código para registrar apenas um identificador pseudonimizado e o ponto/linha, não o objeto 'dados' inteiro.
+
+[1c44e0c028] Gravação de dados sensíveis de saúde  (alta · fonte: IA local (qwen2.5:7b))
+   Risco para o cidadão: Pode expor informações pessoais e de saúde, levando a discriminação ou uso indevido.
+   Impacto: Contraria a LGPD art. 11 (dado sensível de saúde).
+   Como corrigir: Não grava os dados pessoais em texto puro; criptografe e restrinja o acesso.
+
+[d98b4fcfd7] Dado pessoal exposto no console  (media · fonte: IA local (qwen2.5:7b))
+   Risco para o cidadão: Pode expor telefone da pessoa com deficiência, levando a possíveis abusos.
+   Impacto: Contraria a LGPD art. 6º, III (necessidade) e art. 46 (segurança).
+   Como corrigir: Remova a impressão de 'dados['nome']' e 'dados['telefone']' no print. Use um identificador pseudonimizado do pedido em seu lugar.

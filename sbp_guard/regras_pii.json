@@ -1,0 +1,253 @@
+{
+  "_sobre": "Regras do motor de parsing PII do SBP Guard. Para criar uma regra nova basta adicionar um item em 'regras' (texto) ou 'chaves' (campos de JSON/.env). Validadores disponiveis: cpf, cns, luhn, segredo, nenhum.",
+  "regras": [
+    {
+      "id": "cpf",
+      "nome": "CPF",
+      "categoria": "identificador",
+      "lgpd": "Art. 5º, I — dado pessoal",
+      "severidade": "alta",
+      "padrao": "(?<![\\d.\\-/])(\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2})(?![\\d\\-/]|\\.\\d)",
+      "validador": "cpf"
+    },
+    {
+      "id": "cartao_sus",
+      "nome": "Cartão Nacional de Saúde (CNS)",
+      "categoria": "saude",
+      "lgpd": "Art. 11 — dado pessoal sensível (saúde)",
+      "severidade": "alta",
+      "padrao": "(?<![\\d.\\-])([1-2789]\\d{2}[ .]?\\d{4}[ .]?\\d{4}[ .]?\\d{4})(?![\\d\\-]|\\.\\d)",
+      "validador": "cns"
+    },
+    {
+      "id": "cid10",
+      "nome": "Código de doença (CID-10)",
+      "categoria": "saude",
+      "lgpd": "Art. 11 — dado pessoal sensível (saúde)",
+      "severidade": "alta",
+      "padrao": "\\b([A-TV-Z][0-9]{2}(?:\\.[0-9A-Z]{1,2})?)\\b",
+      "contexto": {
+        "palavras": [
+          "cid",
+          "cid-10",
+          "cid10",
+          "diagnostico",
+          "laudo",
+          "prontuario",
+          "doenca"
+        ],
+        "janela": 40,
+        "obrigatorio": true
+      }
+    },
+    {
+      "id": "condicao_saude",
+      "nome": "Condição de saúde ou deficiência",
+      "categoria": "saude",
+      "lgpd": "Art. 11 — dado pessoal sensível (saúde)",
+      "severidade": "alta",
+      "padrao": "(?i)\\b(deficiencia (?:visual|auditiva|fisica|intelectual|motora|multipla)|cegueira|baixa visao|cadeirante|surdez|surd[oa]|autismo|autista|epilepsia|diabetes|diabetic[oa]|hiv|soropositiv[oa]|esquizofrenia|depressao|mobilidade reduzida|gestante)\\b",
+      "contexto": {
+        "palavras": [
+          "paciente",
+          "portador",
+          "portadora",
+          "diagnosticado",
+          "diagnosticada",
+          "diagnostico",
+          "laudo",
+          "cid",
+          "prontuario"
+        ],
+        "janela": 80,
+        "obrigatorio": true,
+        "aceita_identificador_proximo": true
+      }
+    },
+    {
+      "id": "email",
+      "nome": "E-mail",
+      "categoria": "contato",
+      "lgpd": "Art. 5º, I — dado pessoal",
+      "severidade": "media",
+      "padrao": "\\b([A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,})\\b",
+      "ignorar": [
+        "@example\\.",
+        "@exemplo\\.",
+        "noreply@",
+        "@anthropic\\.com",
+        "@users\\.noreply\\.github\\.com"
+      ]
+    },
+    {
+      "id": "telefone",
+      "nome": "Telefone celular",
+      "categoria": "contato",
+      "lgpd": "Art. 5º, I — dado pessoal",
+      "severidade": "media",
+      "padrao": "(?<![\\d.\\-])((?:\\+?55\\s?)?\\(?[1-9]{2}\\)?\\s?9\\d{4}[\\-\\s]?\\d{4})(?![\\d\\-]|\\.\\d)"
+    },
+    {
+      "id": "nome_rotulado",
+      "nome": "Nome de pessoa",
+      "categoria": "identificador",
+      "lgpd": "Art. 5º, I — dado pessoal",
+      "severidade": "media",
+      "padrao": "(?i:\\b(?:nome(?:_completo)?|paciente|passageir[oa]|cidad[aã]o)\\b)[\"']?\\s*[:=]\\s*[\"']?([A-ZÀ-Ý][a-zà-ÿ]+(?:\\s+(?:d[aeo]s?\\s+)?[A-ZÀ-Ý][a-zà-ÿ]+)+)",
+      "contexto": {
+        "palavras": [
+          "paciente",
+          "passageiro",
+          "passageira",
+          "nome_completo",
+          "cidadao",
+          "usuario",
+          "solicitante"
+        ],
+        "janela": 30,
+        "obrigatorio": true,
+        "aceita_identificador_proximo": true
+      },
+      "ignorar": [
+        "^(Av|Avenida|Rua|R\\.|Praca|Praça|Terminal|Term|Metro|Metrô|Estacao|Estação|Cemiterio|Cemitério|Parque|Hospital|Shopping|Jardim|Jd|Vila|Vl|Largo|Viaduto|Ponte|Escola|Igreja|Pq|Cidade|Conjunto|Bairro)\\b"
+      ]
+    },
+    {
+      "id": "data_nascimento",
+      "nome": "Data de nascimento",
+      "categoria": "identificador",
+      "lgpd": "Art. 5º, I — dado pessoal",
+      "severidade": "media",
+      "padrao": "(?i:nasc\\w*|data de nascimento|\\bdn\\b)[\"']?\\W{0,15}(\\d{2}/\\d{2}/\\d{4}|\\d{4}-\\d{2}-\\d{2})"
+    },
+    {
+      "id": "cartao_credito",
+      "nome": "Cartão de crédito",
+      "categoria": "financeiro",
+      "lgpd": "Art. 5º, I — dado pessoal (financeiro)",
+      "severidade": "alta",
+      "padrao": "(?<![\\d.\\-])(\\d{4}[ \\-]?\\d{4}[ \\-]?\\d{4}[ \\-]?\\d{4})(?![\\d\\-])",
+      "validador": "luhn"
+    },
+    {
+      "id": "senha_atribuida",
+      "nome": "Senha ou token em texto",
+      "categoria": "credencial",
+      "lgpd": "Art. 46 — segurança dos dados (credencial de acesso)",
+      "severidade": "critica",
+      "padrao": "(?i:\\b(?:senha|password|passwd|pwd|secret|segredo|api[_\\-]?key|access[_\\-]?key|token)\\b)[\"']?\\s*[:=]\\s*[\"']?([^\\s\"',;)}\\]]{4,})",
+      "validador": "segredo"
+    },
+    {
+      "id": "bearer",
+      "nome": "Token Bearer",
+      "categoria": "credencial",
+      "lgpd": "Art. 46 — segurança dos dados (credencial de acesso)",
+      "severidade": "critica",
+      "padrao": "(?i:bearer)\\s+([A-Za-z0-9\\-_.=]{20,})",
+      "validador": "segredo"
+    },
+    {
+      "id": "chave_conhecida",
+      "nome": "Chave de API conhecida",
+      "categoria": "credencial",
+      "lgpd": "Art. 46 — segurança dos dados (credencial de acesso)",
+      "severidade": "critica",
+      "padrao": "\\b(sk-ant-[A-Za-z0-9\\-_]{20,}|sk-[A-Za-z0-9]{32,}|AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|AIza[0-9A-Za-z\\-_]{35})\\b"
+    }
+  ],
+  "chaves": [
+    {
+      "id": "campo_cpf",
+      "padrao": "^(cpf|nr_cpf|num_cpf|documento)$",
+      "nome": "Campo CPF",
+      "categoria": "identificador",
+      "severidade": "alta",
+      "lgpd": "Art. 5º, I — dado pessoal"
+    },
+    {
+      "id": "campo_credencial",
+      "padrao": "(senha|password|passwd|secret|segredo|api_?key|access_?key|token)",
+      "nome": "Campo de credencial",
+      "categoria": "credencial",
+      "severidade": "critica",
+      "lgpd": "Art. 46 — segurança dos dados (credencial de acesso)",
+      "validador": "segredo"
+    },
+    {
+      "id": "campo_saude",
+      "padrao": "^(condicao|condicao_saude|deficiencia|diagnostico|cid|cid10|doenca|laudo|cartao_sus|cns)$",
+      "nome": "Campo de saúde",
+      "categoria": "saude",
+      "severidade": "alta",
+      "lgpd": "Art. 11 — dado pessoal sensível (saúde)"
+    },
+    {
+      "id": "campo_contato",
+      "padrao": "^(telefone|celular|whatsapp|email|e_mail|endereco|cep)$",
+      "nome": "Campo de contato",
+      "categoria": "contato",
+      "severidade": "media",
+      "lgpd": "Art. 5º, I — dado pessoal"
+    },
+    {
+      "id": "campo_nome",
+      "padrao": "^(nome|nome_social)$",
+      "nome": "Campo de nome",
+      "categoria": "identificador",
+      "severidade": "media",
+      "lgpd": "Art. 5º, I — dado pessoal",
+      "exige_irmao_pessoal": true
+    },
+    {
+      "id": "campo_nome_pessoa",
+      "padrao": "^(nome_completo|nome_passageiro|nome_paciente|passageiro|paciente|solicitante)$",
+      "nome": "Campo de nome de pessoa",
+      "categoria": "identificador",
+      "severidade": "media",
+      "lgpd": "Art. 5º, I — dado pessoal"
+    },
+    {
+      "id": "campo_nascimento",
+      "padrao": "^(nascimento|data_nascimento|dt_nasc)$",
+      "nome": "Campo de nascimento",
+      "categoria": "identificador",
+      "severidade": "media",
+      "lgpd": "Art. 5º, I — dado pessoal"
+    },
+    {
+      "id": "campo_localizacao_pessoa",
+      "padrao": "^(lat|lon|latitude|longitude|localizacao)_(usuario|cidadao|passageiro)$",
+      "nome": "Localização da pessoa",
+      "categoria": "localizacao",
+      "severidade": "media",
+      "lgpd": "Art. 5º, I — dado pessoal (geolocalização)"
+    }
+  ],
+  "placeholders": [
+    "seu_",
+    "sua_",
+    "seu-",
+    "xxx",
+    "changeme",
+    "exemplo",
+    "example",
+    "teste",
+    "test",
+    "dummy",
+    "fake",
+    "placeholder",
+    "<",
+    "${",
+    "{{",
+    "none",
+    "null",
+    "true",
+    "false",
+    "os.environ",
+    "getenv",
+    "***",
+    "...",
+    "aqui"
+  ]
+}
