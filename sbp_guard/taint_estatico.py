@@ -29,7 +29,7 @@ LOCAL = re.compile(r"^https?://(localhost|127\.0\.0\.1|\[::1\])", re.I)
 
 PESO_ROTULO = {"credencial": 3.0, "saude": 3.0, "pessoal": 2.0, "entrada": 1.5}
 PESO_SINK = {"mqtt_publico": 3.0, "rede_http": 3.0, "llm": 2.5, "log": 2.0, "mqtt": 1.5,
-             "console": 1.5, "arquivo": 1.5, "resposta_http": 1.5, "rede_https": 0.0}
+             "console": 1.5, "arquivo": 1.5, "resposta_http": 1.5, "erro_tela": 2.0, "rede_https": 0.0}
 DESC_SINK = {
     "mqtt_publico": "publicação em broker MQTT público (qualquer pessoa pode assinar o tópico)",
     "mqtt": "publicação MQTT",
@@ -40,6 +40,7 @@ DESC_SINK = {
     "console": "saída no console/terminal (vai parar em logs)",
     "arquivo": "gravação em arquivo",
     "resposta_http": "resposta HTTP para o navegador",
+    "erro_tela": "mensagem de erro que volta para a tela do app (resposta HTTP sem autenticação)",
 }
 DESC_ROTULO = {"credencial": "credencial/segredo", "saude": "dado de saúde (sensível, LGPD art. 11)",
                "pessoal": "dado pessoal", "entrada": "dado enviado pelo cidadão"}
@@ -206,6 +207,12 @@ class Funcao:
             r = self.taint(st.value)
             if r:
                 self.mod.retornos[self.no.name] = self.mod.retornos.get(self.no.name, set()) | r
+        elif isinstance(st, ast.Raise) and st.exc is not None:
+            rot = self.taint(st.exc)
+            if rot and self.mod.registrar:
+                for r in rot:
+                    k = (st.lineno, "erro_tela", r.tipo, r.linha, r.parcial)
+                    self.mod.fluxos.setdefault(k, self._fluxo(st, "erro_tela", r))
         elif isinstance(st, ast.Expr):
             self.taint(st.value)
         elif isinstance(st, ast.Match) if hasattr(ast, "Match") else False:

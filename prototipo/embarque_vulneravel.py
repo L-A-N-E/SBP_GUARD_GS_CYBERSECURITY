@@ -23,6 +23,8 @@ def enviar_para_ia(ia, prompt):
 
 def solicitar_embarque(corpo_requisicao, broker, ia, arquivo):
     dados = json.loads(corpo_requisicao)
+    if not dados.get("linha"):
+        raise ValueError(f"pedido invalido, faltou a linha: {dados}")
     log.info("novo pedido de embarque assistido: %s" % dados)
 
     aviso = {"ponto": dados["ponto"], "linha": dados["linha"], "passageiro": dados["nome"],
@@ -35,3 +37,11 @@ def solicitar_embarque(corpo_requisicao, broker, ia, arquivo):
     arquivo.write(f"{dados['cpf']};{dados['nome']};{dados['condicao']};{dados['telefone']}\n")
     print("pedido registrado para", dados["nome"], "tel", dados["telefone"])
     return {"ok": True, "prioridade": prioridade}
+
+
+def responder_ao_app(corpo_requisicao, broker, ia, arquivo):
+    """Endpoint POST /api/embarque (sem autenticacao): o que o celular do cidadao recebe."""
+    try:
+        return 200, solicitar_embarque(corpo_requisicao, broker, ia, arquivo)
+    except Exception as e:
+        return 500, {"erro": "Error 500: %s" % e}

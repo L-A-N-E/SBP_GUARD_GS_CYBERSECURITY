@@ -264,7 +264,12 @@ def mascarar(valor, categoria="", regra=""):
     if categoria == "credencial":
         return "[segredo oculto · %d caracteres · #%s]" % (len(v), impressao(v))
     if regra in ("cpf", "campo_cpf"):
-        return "***.***.***-**"
+        d = re.sub(r"\D", "", v)
+        if len(d) == 11:                       # padrao usado em documentos publicos: ***.456.***-00
+            return "***.%s.***-%s" % (d[3:6], d[9:])
+        return "*" * len(v)
+    if regra == "rg":
+        return "**.***.***-*"
     if regra in ("email",) or "@" in v:
         u, _, d = v.partition("@")
         return (u[:1] + "***@***." + d.rsplit(".", 1)[-1]) if d else "***"

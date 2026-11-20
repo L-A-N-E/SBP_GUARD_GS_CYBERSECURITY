@@ -2,6 +2,8 @@
 
 FIAP · Global Solution 2026.2 (CitizenTech) · Engenharia de Software · 3º ano · **Cybersecurity**
 
+**Repositório:** https://github.com/L-A-N-E/SBP_GUARD_GS_CYBERSECURITY · **Projeto S.B.P. auditado (IoT):** https://github.com/L-A-N-E/GS2026_IOT_S.P.B
+
 **Integrantes**
 - Alice Santos Bulhões — RM554499
 - Eduardo Oliveira Cardoso Madid — RM556349
@@ -12,10 +14,10 @@ O S.B.P. é um totem de ponto de ônibus para pessoas com deficiência. É exata
 
 | Missão | Onde está | Resultado |
 |---|---|---|
-| **01 · Mapeamento de PII** | `sbp_guard/regras_pii.json` + `sbp_guard/pii.py` | 12 regras de texto + 8 regras de campo (JSON/.env), com validadores de CPF, Cartão SUS e Luhn. Precisão de 99,5% e recall de 100% em 187 amostras, e **zero falso positivo** nos 28 arquivos (4,6 MB) do SBP real |
-| **02 · Taint Analysis** | `sbp_guard/taint_estatico.py` (AST) + `sbp_guard/taint_runtime.py` (guardião) | Acha os 5 vazamentos da versão vulnerável e 0 na corrigida. Em tempo de execução: de **56 dados pessoais vazados para 0**, com 20 saídas bloqueadas e 4/4 pedidos atendidos |
-| **03 · Tradução via IA** | `sbp_guard/ia.py` | Um LLM **local** (Ollama · qwen2.5:7b) escreve um alerta para o cidadão por falha, com risco, artigo da LGPD e correção. O prompt passa pelo guardião, então **nenhum dado pessoal vai para a IA** |
-| **Dashboard Risco Cidadão** | `painel/index.html` | Índice de 0 a 100 calculado sem IA, com antes e depois: **70 → 11 → 0**. O SBP real fica em 49 |
+| **01 · Mapeamento de PII** | `sbp_guard/regras_pii.json` + `sbp_guard/pii.py` + `interceptar_entrada()` | Middleware que marca a PII de todo JSON recebido; CPF mascarado como `***.456.***-00`; 13 regras de texto + 8 regras de campo (JSON/.env), com validadores de CPF, Cartão SUS e Luhn. Precisão de 99,5% e recall de 100% em 187 amostras, e **zero falso positivo** nos 28 arquivos (4,6 MB) do SBP real |
+| **02 · Taint Analysis** | `sbp_guard/taint_estatico.py` (AST) + `sbp_guard/taint_runtime.py` (guardião) | Acha as 6 saídas inseguras da versão vulnerável (incluindo o erro 500 que mostra o JSON na tela do app) e 0 na corrigida. Em tempo de execução: de **60 dados pessoais vazados para 0**, com 21 saídas bloqueadas e 4/4 pedidos válidos atendidos |
+| **03 · Tradução via IA** | `sbp_guard/ia.py` | Um LLM **local** via API (Ollama · qwen2.5:7b) traduz cada evento do guardião em **2 frases para um cidadão de 60 anos** (com farol verde/amarelo/vermelho) e cada falha do código em risco, artigo da LGPD e correção. O prompt passa pelo guardião, então **nenhum dado pessoal vai para a IA** |
+| **Dashboard Risco Cidadão** | `painel/index.html` | Índice de 0 a 100 calculado sem IA, com farol e mensagens traduzidas: **76 → 13 → 0**. O SBP real fica em 49 |
 
 ## Como rodar
 
@@ -24,7 +26,7 @@ Precisa de Python 3.10+, sem nenhuma dependência externa. O Ollama é opcional:
 ```bash
 python -m sbp_guard auditar          # roda tudo e gera painel/ + evidencias/
 python -m sbp_guard painel           # abre o painel em http://127.0.0.1:8090 com o botão "Rodar auditoria"
-python -m unittest discover -s tests -v   # 20 testes
+python -m unittest discover -s tests -v   # 24 testes
 python prototipo/demo_runtime.py     # só o teste do guardião em tempo de execução
 ```
 
@@ -61,13 +63,14 @@ flowchart LR
   - "Deficiência visual" só conta se estiver perto de um identificador (CPF, Cartão SUS, e-mail ou telefone) ou de palavras como "paciente", "laudo" ou "CID". Assim "18,6 milhões de pessoas com deficiência" não vira alarme.
   - O nome de uma pessoa só conta perto de um identificador ou de palavras como "passageiro". Assim o nome de uma parada, como "Avenida Cupecê", não é confundido com nome de gente.
 - **Formatos lidos:** texto, JSON (por campo, por exemplo `$.cpf`), JSONL, `.env` (sabe se ele está no `.gitignore`) e código.
-- **Nenhuma saída mostra o valor encontrado.** Só aparecem a máscara (`***.***.***-**`), o tamanho e uma impressão digital SHA-256 curta.
+- **Middleware de entrada:** `interceptar_entrada()` recebe o JSON da requisição e marca como PII (`Sensivel`) todo campo sensível, pela chave (`cpf`, `documento`, `condicao`...) ou pelo conteúdo (um CPF num campo livre).
+- **Nenhuma saída mostra o valor encontrado.** O CPF aparece no padrão `***.456.***-00`; segredos só com tamanho e impressão digital SHA-256 curta.
 
 ### 02 · Taint analysis
 **Estático (AST).**
 - **Fontes:** variável de ambiente com segredo, leitura do `.env`, `input()`, corpo da requisição, payload MQTT e parâmetros como `cpf`, `senha` ou `condicao`.
 - **Propagação:** o dado é seguido por atribuições, f-strings, `%`, `+`, `json.loads`/`dumps`, dicionários e atributos `self.x` entre métodos da mesma classe.
-- **Sinks (saídas):** `print`, logging, MQTT (com detecção de broker público), arquivo, rede e LLM.
+- **Sinks (saídas):** `print`, logging, MQTT (com detecção de broker público), arquivo, rede, LLM e `raise` com dado pessoal (erro que volta para a tela do app).
 - **Rede:** a análise lê as URLs do código. HTTPS para um destino autorizado é **PERMITIDO**; uma lista com `http://` é **VAZAMENTO**.
 - **Sanitizadores reconhecidos:** `mascarar*`, `pseudonimizar`, `hmac`/`hash`, `minimizar*` e `.replace(segredo, "***")`.
 
@@ -83,8 +86,10 @@ flowchart LR
 - O conteúdo analisado vai entre `<achado>…</achado>`, e o modelo é instruído a tratá-lo como dado, não como ordem. Isso protege contra prompt injection vinda do código auditado.
 - A escolha por um modelo **local** foi proposital: o relatório de segurança não sai da máquina.
 
+Cada **evento do guardião** (ex.: `SecurityEvent action=BLOQUEADO sink=tela_app data=[saude]`) vira 2 frases para um cidadão leigo de 60 anos, como pediu o professor. A resposta é validada (até 3 frases, sem jargão como "log" ou "MQTT"); se reprovar, entra um texto pronto e o motivo fica registrado. O farol vem da ação: bloqueado = verde, mascarado = amarelo, vazou = vermelho.
+
 ### Dashboard · Risco Cidadão
-O índice vai de 0 a 100 e é calculado assim:
+O índice vai de 0 a 100 (farol: verde < 25, amarelo 25–49, vermelho ≥ 50) e é calculado assim:
 
 `índice = 100 × (1 − e^(−pontos/30))`, com `pontos = severidade × peso do dado × exposição do destino`
 
@@ -101,14 +106,18 @@ Os pesos do dado são: saúde e credencial 1,0; identificação 0,8; contato 0,6
 A telemetria MQTT do totem, os eventos de IoB e os 4,6 MB de dados GTFS **não têm dado pessoal**: as presenças são contagens anônimas por hora. O risco aparece quando o projeto cresce. O protótipo **Embarque Assistido** mostra isso: a pessoa pede ajuda para embarcar pelo QR code do totem.
 
 ## O protótipo Embarque Assistido
-- **`prototipo/embarque_vulneravel.py` (v1)** é vulnerável **de propósito**. Ele envia nome, CPF, condição e telefone para o log, o broker público, a IA, um CSV e o console.
+- **`prototipo/embarque_vulneravel.py` (v1)** é vulnerável **de propósito**. Ele envia nome, CPF, condição e telefone para o log, o broker público, a IA, um CSV, o console e, quando o pedido vem incompleto, para a tela do app (Error 500 com o JSON inteiro).
 - **`prototipo/embarque_seguro.py` (v2)** aplica as correções:
   - **minimização:** o broker público recebe só ponto, linha e um id;
   - **pseudonimização:** HMAC-SHA256 do CPF;
   - **categoria em vez de diagnóstico:** "apoio_visual";
   - **canal autenticado** para o motorista;
   - **cofre criptografado** para o registro completo.
-- **`prototipo/demo_runtime.py`** roda 4 pedidos **fictícios** em 3 cenários: sem proteção, com o guardião e corrigido. Todas as saídas são falsas, em memória, e nada vai para a internet.
+- **`prototipo/demo_runtime.py`** roda 5 pedidos **fictícios** (um incompleto, para forçar o erro 500) em 3 cenários: sem proteção, com o guardião e corrigido. Todas as saídas são falsas, em memória, e nada vai para a internet.
+
+## Entrega
+- **PDF de documentação** (separado): `GS2026_Cybersecurity_SBP_Guard_Documentacao.pdf`, com prints do código e das evidências dos 3 pontos.
+- **ZIP do código-fonte**: este projeto.
 
 ## Evidências (`evidencias/`)
 - `taint_estatico.txt`: todos os fluxos, de fonte até sink, com linha e trecho de código, mais as sanitizações reconhecidas.
@@ -116,7 +125,7 @@ A telemetria MQTT do totem, os eventos de IoB e os 4,6 MB de dados GTFS **não t
 - `alertas_ia.txt`: os alertas escritos pela IA.
 - `metricas_motor_pii.json`: precisão e recall por regra.
 - `verificacao_sem_segredos.txt`: checagem automática de que nenhum valor sensível encontrado, nem o token real, aparece nos arquivos gerados.
-- `testes.txt`: saída dos 20 testes.
+- `testes.txt`: saída dos 24 testes.
 - `prints/`: telas do painel, uma por cenário.
 
 ## Limites conhecidos

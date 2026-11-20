@@ -72,6 +72,13 @@
    "precisao": 1.0,
    "recall": 1.0
   },
+  "rg": {
+   "vp": 0,
+   "fp": 0,
+   "fn": 0,
+   "precisao": null,
+   "recall": null
+  },
   "senha_atribuida": {
    "vp": 12,
    "fp": 0,

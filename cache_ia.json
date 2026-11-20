@@ -94,5 +94,157 @@
   "como_corrigir": "Remova a impressão de 'dados['nome']' e 'dados['telefone']' no print. Use um identificador pseudonimizado do pedido em seu lugar.",
   "severidade": "media",
   "fonte": "IA local (qwen2.5:7b)"
+ },
+ "2dfe0348e1720484": {
+  "titulo": "Dado sensível exposto",
+  "risco_cidadao": "Pessoas podem acessar dados de saúde, levando a discriminação ou uso indevido.",
+  "impacto": "Contraria a LGPD art. 11 (dado sensível de saúde).",
+  "como_corrigir": "Atualize o código para publicar apenas um identificador pseudônomo e pontos de localização. Utilize um broker MQTT privado com TLS e autenticação.",
+  "severidade": "alta",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "f0d5f3d1e4453867": {
+  "titulo": "Vazamento de dados sensíveis",
+  "risco_cidadao": "Pode expor diagnósticos pessoais, levando a discriminação ou uso indevido.",
+  "impacto": "Contraria a LGPD art. 11 (dado sensível de saúde).",
+  "como_corrigir": "Anonimize os dados antes de enviar para a IA, usando categorias gerais como 'apoio_visual' em vez de nomes, CPFs ou diagnósticos específicos.",
+  "severidade": "critica",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "2aae32fd50a47651": {
+  "titulo": "Dado de saúde exposto em erro",
+  "risco_cidadao": "Pode expor informações de saúde sensíveis, levando a discriminação ou uso indevido.",
+  "impacto": "Contraria a LGPD art. 11 (dado sensível de saúde).",
+  "como_corrigir": "Remova a inclusão do objeto 'dados' inteiro no erro de resposta HTTP. Utilize apenas os campos necessários.",
+  "severidade": "alta",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "65b1d41076231eff": {
+  "titulo": "Log exibe dados de saúde sensíveis",
+  "risco_cidadao": "Pode expor informações de saúde, levando a discriminação ou uso indevido.",
+  "impacto": "Contraria a LGPD art. 11 (dado sensível de saúde).",
+  "como_corrigir": "Modifique o código para registrar apenas um identificador pseudonimizado e o ponto/linha, não o objeto 'dados' inteiro.",
+  "severidade": "alta",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "da6282cead8ccef4": {
+  "titulo": "Vazamento de dados sensíveis",
+  "risco_cidadao": "Pode expor dados de saúde pessoais, levando a discriminação ou uso indevido.",
+  "impacto": "Contraria a LGPD art. 11 (dado sensível de saúde).",
+  "como_corrigir": "Não gravar dados pessoais em arquivo texto; criptografar os dados e restringir o acesso.",
+  "severidade": "alta",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "fe8870a96f083889": {
+  "titulo": "Dado pessoal exposto no console",
+  "risco_cidadao": "Pode expor nome e telefone, levando a possíveis golpes.",
+  "impacto": "Contraria a LGPD art. 6º, III (necessidade) e art. 46 (segurança).",
+  "como_corrigir": "Remova a impressão do nome e telefone no console. Use um ID pseudonimizado para identificar o pedido.",
+  "severidade": "media",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "3e7d066d042425fa": {
+  "mensagem": "Alguns dados seus, como contato, identificador e situação de saúde, foram notados como possivelmente vazados no registro do sistema. Já estamos investigando o caso.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "a33abb25b28a0d68": {
+  "mensagem": "Alguém tentou enviar seus dados pessoais, como contato, identificador e situação de saúde, para um lugar onde muitas pessoas podem ver. Nossa equipe já foi informada e está trabalhando para resolver isso.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "16b9b13f163dbca4": {
+  "mensagem": "Alguns dados seus, como identificador e informações de saúde, podem ter vazado para o modelo de inteligência artificial. Já avisamos a equipe para resolver o problema.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "094f278fc0e4b699": {
+  "mensagem": "Alguns dados seus, como contato, identificador e informações de saúde, foram encontrados em um arquivo não protegido. Nossa equipe já foi informada e está trabalhando para corrigir isso.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "62f589e604d4d5ef": {
+  "mensagem": "Alguns dados seus foram notificados como possivelmente vazados, mas nossa equipe já foi informada e está investigando.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "1ee279284eac9576": {
+  "mensagem": "Alguns dados seus, como contato, identificador e saúde, podem ter vazado para a tela do app. Já avisamos a equipe para resolver isso.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "09c47ac17f957d56": {
+  "mensagem": "O sistema bloqueou o acesso não autorizado a seus dados pessoais no totem de ônibus. Não precisa se preocupar, pois seus dados foram protegidos.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "c666723575eba561": {
+  "mensagem": "O sistema bloqueou uma tentativa de compartilhar seus dados pessoais, como contato, identificador e situação de saúde, em um canal público. Isso foi feito para proteger suas informações.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "2e5487196c8c6cf4": {
+  "mensagem": "O sistema bloqueou o acesso ao seu identificador e informações de saúde quando você usou o totem. Isso foi feito para proteger seus dados.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "3d2b98e7629fd3bd": {
+  "mensagem": "Um arquivo com seus dados pessoais, como contato, identificador e informações de saúde, foi bloqueado para protegê-los. Não precisa se preocupar, pois a equipe já foi informada.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "6771f0f08ced0ca3": {
+  "mensagem": "O sistema bloqueou um acesso não autorizado tentando ver seus dados de contato. Não precisa se preocupar, pois isso foi protegido.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "e4defe612a92d8e0": {
+  "mensagem": "O sistema bloqueou uma tentativa de acesso não autorizado a seus dados no app. Isso foi para proteger sua informação pessoal.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "f950320890174c77": {
+  "titulo": "Dado pessoal exposto no console",
+  "risco_cidadao": "Pode expor telefone da pessoa com deficiência, levando a possíveis abusos.",
+  "impacto": "Contraria a LGPD art. 6º, III (necessidade) e art. 46 (segurança).",
+  "como_corrigir": "Remova a impressão de 'dados['nome']' e 'dados['telefone']' no print. Use um identificador pseudonimizado do pedido em seu lugar.",
+  "severidade": "media",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "02296bb6217f479c": {
+  "mensagem": "Houve um incidente onde seus documentos, telefone e informação de saúde quase foram divulgados. A equipe já foi informada e está trabalhando para corrigir isso.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "ca169d964fda4448": {
+  "mensagem": "Alguém tentou acessar seus documentos, telefone e informação de saúde através de um sistema público. Não se preocupe, já avisamos a equipe para resolver isso.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "d34e6b672f863b19": {
+  "mensagem": "Houve um incidente onde seus documentos e sua informação de saúde podem ter vazado para o modelo de inteligência artificial. Nossa equipe já foi informada e está investigando o caso.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "2825c5635bdcbb3a": {
+  "mensagem": "Alguém pode ter acessado seus documentos (como o CPF), seu telefone e sua informação de saúde. A equipe já foi informada e está investigando.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "e9dccc82cc07893d": {
+  "mensagem": "Houve um problema com a informação do seu telefone, CPF e saúde que apareceu na tela do app sem deveria. Já estamos tomando providências para corrigir.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "6ea040d32be4a09c": {
+  "mensagem": "Seus documentos e informações de saúde foram protegidos pelo sistema durante o embarque. Você não precisa fazer nada.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "1c49fc9b117e3347": {
+  "mensagem": "Seus documentos e sua informação de saúde foram protegidos quando você usou o totem. Não precisa fazer nada, pois o sistema já está cuidando disso.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "888378191575521c": {
+  "mensagem": "Seus documentos e sua informação de saúde foram protegidos quando você usou o totem. Não precisa fazer nada, pois o sistema já está cuidando disso.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "dbb33d1cd5f91cd8": {
+  "mensagem": "Seus documentos, telefone e informação de saúde foram protegidos no sistema de totem de ônibus. Não precisa fazer nada, pois o sistema já está cuidando disso.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "efc4ce23be4099aa": {
+  "mensagem": "O sistema bloqueou o acesso aos seus documentos e informação de saúde no totem de ônibus, protegendo seus dados. Você não precisa fazer nada, pois o sistema já está cuidando disso.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "621c7c11c4fb11b4": {
+  "mensagem": "O sistema bloqueou o acesso a seus documentos e informações de saúde quando houve um erro na resposta do app. Isso protegeu seus dados.",
+  "fonte": "IA local (qwen2.5:7b)"
+ },
+ "ddbaa7e6a7999167": {
+  "mensagem": "Por uma falha, houve o envio de seu telefone para o registro interno do sistema. A equipe do SBP já foi avisada para corrigir e proteger você.",
+  "fonte": "modelo pronto (resposta da IA reprovada na validação: jargão técnico)"
  }
 }

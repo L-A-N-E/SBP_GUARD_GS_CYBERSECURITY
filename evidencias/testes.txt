@@ -3,16 +3,20 @@ test_bloqueia_mesmo_quando_fstring_perde_o_rotulo (test_sbp_guard.GuardiaoRuntim
 test_bloqueia_valor_rotulado (test_sbp_guard.GuardiaoRuntime.test_bloqueia_valor_rotulado) ... ok
 test_cenarios_da_demo (test_sbp_guard.GuardiaoRuntime.test_cenarios_da_demo) ... ok
 test_destino_seguro_passa_e_mascarar_funciona (test_sbp_guard.GuardiaoRuntime.test_destino_seguro_passa_e_mascarar_funciona) ... ok
+test_evento_vira_mensagem_para_o_cidadao_com_farol (test_sbp_guard.IAeRisco.test_evento_vira_mensagem_para_o_cidadao_com_farol) ... ok
 test_indice_cai_com_guardiao_e_correcao (test_sbp_guard.IAeRisco.test_indice_cai_com_guardiao_e_correcao) ... ok
 test_prompt_da_ia_nao_leva_dado_pessoal (test_sbp_guard.IAeRisco.test_prompt_da_ia_nao_leva_dado_pessoal) ... ok
 test_prompt_marca_conteudo_como_dado (test_sbp_guard.IAeRisco.test_prompt_marca_conteudo_como_dado) ... ok
 test_campos_de_json (test_sbp_guard.MotorPII.test_campos_de_json) ... ok
 test_detecta_dados_sensiveis (test_sbp_guard.MotorPII.test_detecta_dados_sensiveis) ... ok
+test_interceptador_de_entrada_marca_pii_sozinho (test_sbp_guard.MotorPII.test_interceptador_de_entrada_marca_pii_sozinho) ... ok
+test_mascara_do_cpf_no_padrao_pedido (test_sbp_guard.MotorPII.test_mascara_do_cpf_no_padrao_pedido) ... ok
 test_nova_regra_so_editando_o_json (test_sbp_guard.MotorPII.test_nova_regra_so_editando_o_json) ... ok
 test_relatorio_nunca_tem_valor_bruto (test_sbp_guard.MotorPII.test_relatorio_nunca_tem_valor_bruto) ... ok
 test_sem_falso_positivo_nos_dados_do_sbp (test_sbp_guard.MotorPII.test_sem_falso_positivo_nos_dados_do_sbp) ... ok
 test_validador_cns (test_sbp_guard.MotorPII.test_validador_cns) ... ok
 test_validador_cpf (test_sbp_guard.MotorPII.test_validador_cpf) ... ok
+test_erro_com_dado_pessoal_e_vazamento_para_a_tela (test_sbp_guard.TaintEstatico.test_erro_com_dado_pessoal_e_vazamento_para_a_tela) ... ok
 test_sanitizador_interrompe (test_sbp_guard.TaintEstatico.test_sanitizador_interrompe) ... ok
 test_segue_por_fstring_e_json_dumps (test_sbp_guard.TaintEstatico.test_segue_por_fstring_e_json_dumps) ... ok
 test_token_em_https_e_permitido_e_em_http_nao (test_sbp_guard.TaintEstatico.test_token_em_https_e_permitido_e_em_http_nao) ... ok
@@ -20,6 +24,6 @@ test_versao_corrigida_nao_vaza (test_sbp_guard.TaintEstatico.test_versao_corrigi
 test_versao_vulneravel_tem_os_5_vazamentos (test_sbp_guard.TaintEstatico.test_versao_vulneravel_tem_os_5_vazamentos) ... ok
 
 ----------------------------------------------------------------------
-Ran 20 tests in 0.045s
+Ran 24 tests in 0.078s
 
 OK

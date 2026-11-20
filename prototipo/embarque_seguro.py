@@ -8,6 +8,8 @@ O que mudou em relacao a versao 1:
     do motorista, ja reduzido a uma categoria — nunca o diagnostico.
   * Logs e prompt de IA sem nenhum dado pessoal.
   * O registro completo vai criptografado para o cofre.
+  * Middleware de entrada: interceptar_entrada() marca sozinho cada campo com PII.
+  * Erro de validacao nunca devolve o dado do cidadao; o app recebe uma mensagem humana.
   * Todas as saidas passam pelo Guardiao (taint em tempo de execucao).
 """
 import hashlib
@@ -16,16 +18,23 @@ import json
 import logging
 import os
 
-from sbp_guard.taint_runtime import marcar
+from sbp_guard.taint_runtime import interceptar_entrada
 
 MQTT_HOST = "broker.hivemq.com"
 TOPICO = "sbp-gs2026/totem/sbp-0001"
 log = logging.getLogger("sbp.embarque")
 CHAVE = os.environ.get("SBP_CHAVE_PSEUDONIMO", "chave-de-demonstracao-troque-em-producao").encode()
-ROTULOS = {"nome": "pessoal", "cpf": "pessoal", "telefone": "pessoal", "condicao": "saude"}
 CATEGORIAS = {"visual": "apoio_visual", "cego": "apoio_visual", "cegueira": "apoio_visual",
               "cadeira": "cadeira_de_rodas", "cadeirante": "cadeira_de_rodas", "mobilidade": "mobilidade_reduzida",
               "auditiva": "apoio_auditivo", "surd": "apoio_auditivo"}
+
+
+class PedidoInvalido(Exception):
+    pass
+
+
+MENSAGEM_ERRO = ("Não conseguimos registrar seu pedido de embarque assistido porque faltou uma informação. "
+                 "Seus dados não foram compartilhados com ninguém; tente de novo ou peça ajuda no totem.")
 
 
 def pseudonimizar(valor):
@@ -50,7 +59,10 @@ def enviar_para_ia(ia, prompt):
 
 
 def solicitar_embarque(corpo_requisicao, broker, ia, cofre, operador):
-    dados = marcar(json.loads(corpo_requisicao), ROTULOS)
+    dados, _ = interceptar_entrada(json.loads(corpo_requisicao))
+    faltando = [c for c in ("cpf", "condicao", "ponto", "linha") if not dados.get(c)]
+    if faltando:
+        raise PedidoInvalido("campo obrigatório ausente: " + ", ".join(faltando))
     pedido = pseudonimizar(dados["cpf"])
     apoio = minimizar_apoio(dados["condicao"])
     ponto, linha = dados["ponto"], dados["linha"]
@@ -61,3 +73,12 @@ def solicitar_embarque(corpo_requisicao, broker, ia, cofre, operador):
     prioridade = enviar_para_ia(ia, f"Classifique a prioridade de um embarque com {apoio} na linha {linha}")
     cofre.guardar(pedido, criptografar(dados))
     return {"ok": True, "pedido": pedido, "prioridade": prioridade}
+
+
+def responder_ao_app(corpo_requisicao, broker, ia, cofre, operador):
+    """Endpoint POST /api/embarque: o erro tecnico fica no servidor; o app recebe uma frase humana."""
+    try:
+        return 200, solicitar_embarque(corpo_requisicao, broker, ia, cofre, operador)
+    except PedidoInvalido as e:
+        log.info("pedido recusado: %s" % e)
+        return 400, {"mensagem": MENSAGEM_ERRO}

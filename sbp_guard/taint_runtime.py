@@ -32,6 +32,35 @@ def marcar(dados, rotulos):
     return out
 
 
+def interceptar_entrada(dados, motor=None):
+    """Middleware de ENTRADA: varre o JSON que chegou (formulario/API) e marca como PII
+    todo campo em que o motor achar dado sensivel — pela chave (cpf, documento, condicao...)
+    ou pelo conteudo (um CPF escrito num campo 'observacao', por exemplo).
+    Devolve (dados_marcados, relatorio_com_mascaras). Nenhum campo precisa ser declarado a mao."""
+    motor = motor or Motor()
+    marcado, relatorio = {}, []
+    for k, v in dados.items():
+        if not isinstance(v, (str, int)) or isinstance(v, bool):
+            marcado[k] = v
+            continue
+        sv = str(v)
+        c = motor.regra_de_chave(k)
+        if c and c.get("exige_irmao_pessoal"):
+            c = c if any(motor.regra_de_chave(x) and x != k for x in dados) else None
+        achados = motor.analisar_texto(sv, "<entrada>", chave=k)
+        cats = ({c["categoria"]} if c else set()) | {a.categoria for a in achados}
+        if not cats:
+            marcado[k] = v
+            continue
+        rotulo = "saude" if "saude" in cats else "credencial" if "credencial" in cats else "pessoal"
+        marcado[k] = Sensivel(sv, rotulo)
+        from .pii import mascarar
+        regra = (c or {}).get("id") or (achados[0].regra if achados else "")
+        relatorio.append({"campo": k, "rotulo": rotulo, "categorias": sorted(cats),
+                          "mascara": achados[0].mascara if achados else mascarar(sv, (c or {}).get("categoria", ""), regra)})
+    return marcado, relatorio
+
+
 class VazamentoBloqueado(Exception):
     def __init__(self, evento):
         super().__init__("vazamento bloqueado para %s (%s)" % (evento["destino"], ", ".join(evento["categorias"])))
@@ -49,6 +78,7 @@ DESTINOS = {
     "llm": Destino("llm", False, "modelo de IA"),
     "arquivo_texto": Destino("arquivo_texto", False, "arquivo de texto sem criptografia"),
     "painel_publico": Destino("painel_publico", False, "Ponto Virtual (painel aberto ao público)"),
+    "tela_app": Destino("tela_app", False, "resposta HTTP sem autenticação que aparece na tela do app"),
     "cofre": Destino("cofre", True, "armazenamento criptografado com acesso controlado"),
     "operador_autenticado": Destino("operador_autenticado", True, "canal autenticado do motorista/operador (TLS)"),
 }

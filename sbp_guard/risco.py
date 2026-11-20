@@ -13,9 +13,9 @@ SEV = {"critica": 10, "alta": 6, "media": 3, "baixa": 1}
 CAT = {"saude": 1.0, "credencial": 1.0, "financeiro": 0.9, "identificador": 0.8, "pessoal": 0.8,
        "contato": 0.6, "localizacao": 0.6, "entrada": 0.5}
 EXPO = {"mqtt_publico": 1.0, "rede_http": 0.9, "llm": 0.7, "log": 0.6, "resposta_http": 0.6, "mqtt": 0.6,
-        "console": 0.5, "arquivo": 0.5, "repouso": 0.3}
+        "console": 0.5, "arquivo": 0.5, "erro_tela": 0.7, "repouso": 0.3}
 SINK_PARA_DESTINO = {"mqtt_publico": "mqtt_publico", "mqtt": "mqtt_publico", "log": "log", "console": "log",
-                     "llm": "llm", "arquivo": "arquivo_texto"}
+                     "llm": "llm", "arquivo": "arquivo_texto", "erro_tela": "tela_app"}
 FAIXAS = [(75, "crítico"), (50, "alto"), (25, "moderado"), (0, "baixo")]
 
 
@@ -42,5 +42,6 @@ def calcular(pii, fluxos, destinos_bloqueados=()):
     for c in contrib:
         k = {"pessoal": "identificador", "entrada": "identificador"}.get(c["categoria"], c["categoria"])
         por_cat[k] = round(por_cat.get(k, 0) + c["pontos"], 1)
-    return {"indice": indice, "faixa": faixa(indice), "soma": round(soma, 1), "por_categoria": por_cat,
+    farol = "verde" if indice < 25 else "amarelo" if indice < 50 else "vermelho"
+    return {"indice": indice, "faixa": faixa(indice), "farol": farol, "soma": round(soma, 1), "por_categoria": por_cat,
             "contribuicoes": sorted(contrib, key=lambda c: -c["pontos"])}

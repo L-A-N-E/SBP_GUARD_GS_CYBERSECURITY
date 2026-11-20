@@ -16,7 +16,7 @@ Alertas gerados pela IA (qwen2.5:7b, local) — o que cada falha significa para 
    Como corrigir: Remova a impressão do token no console e registre apenas que a credencial foi carregada com sucesso.
 
 [11e13569be] Credencial impressa no console  (baixa · fonte: IA local (qwen2.5:7b))
-   Risco para o cidadão: Exposição de credenciais sensíveis.
+   Risco para o cidadão: Exposição do segredo pode permitir acesso não autorizado.
    Impacto: Contraria a LGPD art. 46 (dever de segurança).
    Como corrigir: Remova a impressão do token e registre apenas que a credencial foi carregada.
 
@@ -25,27 +25,85 @@ Alertas gerados pela IA (qwen2.5:7b, local) — o que cada falha significa para 
    Impacto: Contraria a Art. 46 — segurança dos dados (credencial de acesso).
    Como corrigir: Manter o .env fora do git, com permissão restrita, e em produção usar um cofre de segredos.
 
-[2048e8985d] Dado de saúde exposto publicamente  (critica · fonte: IA local (qwen2.5:7b))
-   Risco para o cidadão: Pode ser usado para discriminação ou golpes.
+[3ff4dd18e6] Dado sensível exposto  (alta · fonte: IA local (qwen2.5:7b))
+   Risco para o cidadão: Pessoas podem acessar dados de saúde, levando a discriminação ou uso indevido.
    Impacto: Contraria a LGPD art. 11 (dado sensível de saúde).
-   Como corrigir: Apenas publique um ponto, linha e um ID pseudônimo. Use um broker privado com TLS e autenticação para o resto do conteúdo.
+   Como corrigir: Atualize o código para publicar apenas um identificador pseudônomo e pontos de localização. Utilize um broker MQTT privado com TLS e autenticação.
 
-[e9ad2744cc] Vazamento de dados sensíveis  (critica · fonte: IA local (qwen2.5:7b))
+[2b38e95ead] Vazamento de dados sensíveis  (critica · fonte: IA local (qwen2.5:7b))
    Risco para o cidadão: Pode expor diagnósticos pessoais, levando a discriminação ou uso indevido.
    Impacto: Contraria a LGPD art. 11 (dado sensível de saúde).
    Como corrigir: Anonimize os dados antes de enviar para a IA, usando categorias gerais como 'apoio_visual' em vez de nomes, CPFs ou diagnósticos específicos.
 
-[4a538bbbdb] Log exibe dados de saúde sensíveis  (alta · fonte: IA local (qwen2.5:7b))
+[3ad9559303] Dado de saúde exposto em erro  (alta · fonte: IA local (qwen2.5:7b))
+   Risco para o cidadão: Pode expor informações de saúde sensíveis, levando a discriminação ou uso indevido.
+   Impacto: Contraria a LGPD art. 11 (dado sensível de saúde).
+   Como corrigir: Remova a inclusão do objeto 'dados' inteiro no erro de resposta HTTP. Utilize apenas os campos necessários.
+
+[5811565ff1] Log exibe dados de saúde sensíveis  (alta · fonte: IA local (qwen2.5:7b))
    Risco para o cidadão: Pode expor informações de saúde, levando a discriminação ou uso indevido.
    Impacto: Contraria a LGPD art. 11 (dado sensível de saúde).
    Como corrigir: Modifique o código para registrar apenas um identificador pseudonimizado e o ponto/linha, não o objeto 'dados' inteiro.
 
-[1c44e0c028] Gravação de dados sensíveis de saúde  (alta · fonte: IA local (qwen2.5:7b))
-   Risco para o cidadão: Pode expor informações pessoais e de saúde, levando a discriminação ou uso indevido.
+[58aa48cc23] Vazamento de dados sensíveis  (alta · fonte: IA local (qwen2.5:7b))
+   Risco para o cidadão: Pode expor dados de saúde pessoais, levando a discriminação ou uso indevido.
    Impacto: Contraria a LGPD art. 11 (dado sensível de saúde).
-   Como corrigir: Não grava os dados pessoais em texto puro; criptografe e restrinja o acesso.
+   Como corrigir: Não gravar dados pessoais em arquivo texto; criptografar os dados e restringir o acesso.
 
-[d98b4fcfd7] Dado pessoal exposto no console  (media · fonte: IA local (qwen2.5:7b))
+[3bf4792a95] Dado pessoal exposto no console  (media · fonte: IA local (qwen2.5:7b))
    Risco para o cidadão: Pode expor telefone da pessoa com deficiência, levando a possíveis abusos.
    Impacto: Contraria a LGPD art. 6º, III (necessidade) e art. 46 (segurança).
    Como corrigir: Remova a impressão de 'dados['nome']' e 'dados['telefone']' no print. Use um identificador pseudonimizado do pedido em seu lugar.
+
+
+====================================================================================================
+Eventos do guardião traduzidos para o cidadão (leigo, 60 anos, 2 frases)
+====================================================================================================
+
+[farol VERMELHO] cenário antes
+   Técnico : SecurityEvent action=VAZOU sink=log (log da aplicação) data=[contato,identificador,saude] detected_by=conteúdo module=EmbarqueAssistido context=log.info
+   Cidadão : Houve um incidente onde seus documentos, telefone e informação de saúde quase foram divulgados. A equipe já foi informada e está trabalhando para corrigir isso.  (IA local (qwen2.5:7b))
+
+[farol VERMELHO] cenário antes
+   Técnico : SecurityEvent action=VAZOU sink=mqtt_publico (broker MQTT público (broker.hivemq.com)) data=[contato,identificador,saude] detected_by=conteúdo module=EmbarqueAssistido context=publish sbp-gs2026/totem/sbp-0001/embarque
+   Cidadão : Alguém tentou acessar seus documentos, telefone e informação de saúde através de um sistema público. Não se preocupe, já avisamos a equipe para resolver isso.  (IA local (qwen2.5:7b))
+
+[farol VERMELHO] cenário antes
+   Técnico : SecurityEvent action=VAZOU sink=llm (modelo de IA) data=[identificador,saude] detected_by=conteúdo module=EmbarqueAssistido context=prompt para IA
+   Cidadão : Houve um incidente onde seus documentos e sua informação de saúde podem ter vazado para o modelo de inteligência artificial. Nossa equipe já foi informada e está investigando o caso.  (IA local (qwen2.5:7b))
+
+[farol VERMELHO] cenário antes
+   Técnico : SecurityEvent action=VAZOU sink=arquivo_texto (arquivo de texto sem criptografia) data=[contato,identificador,saude] detected_by=conteúdo module=EmbarqueAssistido context=gravação CSV
+   Cidadão : Alguém pode ter acessado seus documentos (como o CPF), seu telefone e sua informação de saúde. A equipe já foi informada e está investigando.  (IA local (qwen2.5:7b))
+
+[farol VERMELHO] cenário antes
+   Técnico : SecurityEvent action=VAZOU sink=log (log da aplicação) data=[contato] detected_by=conteúdo module=EmbarqueAssistido context=print no console
+   Cidadão : Por uma falha, houve o envio de seu telefone para o registro interno do sistema. A equipe do SBP já foi avisada para corrigir e proteger você.  (modelo pronto (resposta da IA reprovada na validação: jargão técnico))
+
+[farol VERMELHO] cenário antes
+   Técnico : SecurityEvent action=VAZOU sink=tela_app (resposta HTTP sem autenticação que aparece na tela do app) data=[contato,identificador,saude] detected_by=conteúdo module=EmbarqueAssistido context=resposta HTTP 500
+   Cidadão : Houve um problema com a informação do seu telefone, CPF e saúde que apareceu na tela do app sem deveria. Já estamos tomando providências para corrigir.  (IA local (qwen2.5:7b))
+
+[farol VERDE] cenário guardiao
+   Técnico : SecurityEvent action=BLOQUEADO sink=log (log da aplicação) data=[contato,identificador,saude] detected_by=conteúdo module=EmbarqueAssistido context=log.info
+   Cidadão : Seus documentos e informações de saúde foram protegidos pelo sistema durante o embarque. Você não precisa fazer nada.  (IA local (qwen2.5:7b))
+
+[farol VERDE] cenário guardiao
+   Técnico : SecurityEvent action=BLOQUEADO sink=mqtt_publico (broker MQTT público (broker.hivemq.com)) data=[contato,identificador,saude] detected_by=conteúdo module=EmbarqueAssistido context=publish sbp-gs2026/totem/sbp-0001/embarque
+   Cidadão : Seus documentos e sua informação de saúde foram protegidos quando você usou o totem. Não precisa fazer nada, pois o sistema já está cuidando disso.  (IA local (qwen2.5:7b))
+
+[farol VERDE] cenário guardiao
+   Técnico : SecurityEvent action=BLOQUEADO sink=llm (modelo de IA) data=[identificador,saude] detected_by=conteúdo module=EmbarqueAssistido context=prompt para IA
+   Cidadão : Seus documentos e sua informação de saúde foram protegidos quando você usou o totem. Não precisa fazer nada, pois o sistema já está cuidando disso.  (IA local (qwen2.5:7b))
+
+[farol VERDE] cenário guardiao
+   Técnico : SecurityEvent action=BLOQUEADO sink=arquivo_texto (arquivo de texto sem criptografia) data=[contato,identificador,saude] detected_by=conteúdo module=EmbarqueAssistido context=gravação CSV
+   Cidadão : Seus documentos, telefone e informação de saúde foram protegidos no sistema de totem de ônibus. Não precisa fazer nada, pois o sistema já está cuidando disso.  (IA local (qwen2.5:7b))
+
+[farol VERDE] cenário guardiao
+   Técnico : SecurityEvent action=BLOQUEADO sink=log (log da aplicação) data=[contato] detected_by=conteúdo module=EmbarqueAssistido context=print no console
+   Cidadão : O sistema bloqueou o acesso aos seus documentos e informação de saúde no totem de ônibus, protegendo seus dados. Você não precisa fazer nada, pois o sistema já está cuidando disso.  (IA local (qwen2.5:7b))
+
+[farol VERDE] cenário guardiao
+   Técnico : SecurityEvent action=BLOQUEADO sink=tela_app (resposta HTTP sem autenticação que aparece na tela do app) data=[contato,identificador,saude] detected_by=conteúdo module=EmbarqueAssistido context=resposta HTTP 500
+   Cidadão : O sistema bloqueou o acesso a seus documentos e informações de saúde quando houve um erro na resposta do app. Isso protegeu seus dados.  (IA local (qwen2.5:7b))

@@ -152,10 +152,27 @@ def executar(sbp=SBP_PADRAO, saida=None, usar_ia=True, progresso=print):
         alertas[it["id"]] = tr.traduzir(it)
         passo(8, "[%d/%d] %s" % (i, len(itens), alertas[it["id"]]["titulo"]))
 
+    eventos, vistos = [], set()
+    for c in runtime:
+        if c["cenario"] not in ("antes", "guardiao"):
+            continue
+        for e in c["eventos"]:
+            k = (c["cenario"], e["acao"], e["destino"], tuple(e["categorias"]), e["contexto"].split(" ")[0])
+            if k not in vistos:
+                vistos.add(k)
+                eventos.append((c["cenario"], e))
+    passo(8, "IA traduzindo %d evento(s) do guardião para um cidadão de 60 anos (2 frases)" % len(eventos))
+    mensagens = []
+    for i, (cen, e) in enumerate(eventos, 1):
+        m = tr.traduzir_evento(e)
+        m["cenario"] = cen
+        mensagens.append(m)
+        passo(8, "[%d/%d] farol %s · %s" % (i, len(eventos), m["farol"], m["mensagem"][:70] + ("…" if len(m["mensagem"]) > 70 else "")))
+
     rel = {"gerado_em": time.strftime("%d/%m/%Y %H:%M:%S"), "duracao_s": round(time.time() - t0, 1),
            "regras": {"texto": len(motor.regras), "campos": len(motor.chaves)},
            "metricas_pii": metricas, "alvos": alvos, "runtime": runtime, "risco": indices,
-           "destinos_bloqueados": sorted(bloqueados), "alertas": alertas,
+           "destinos_bloqueados": sorted(bloqueados), "alertas": alertas, "mensagens_cidadao": mensagens,
            "ia": {"modelo": MODELO, "local": True, "usada": tr.usar_ia, "estatisticas": tr.estatisticas}}
 
     texto = json.dumps(rel, ensure_ascii=False, indent=1, default=list)
@@ -246,5 +263,11 @@ def _evidencias(rel, evid):
         A.append("   Risco para o cidadão: " + v["risco_cidadao"])
         A.append("   Impacto: " + v["impacto"])
         A.append("   Como corrigir: " + v["como_corrigir"])
+        A.append("")
+    A += ["", "=" * 100, "Eventos do guardião traduzidos para o cidadão (leigo, 60 anos, 2 frases)", "=" * 100, ""]
+    for m in rel["mensagens_cidadao"]:
+        A.append("[farol %s] cenário %s" % (m["farol"].upper(), m["cenario"]))
+        A.append("   Técnico : " + m["tecnico"])
+        A.append("   Cidadão : " + m["mensagem"] + "  (" + m["fonte"] + ")")
         A.append("")
     open(os.path.join(evid, "alertas_ia.txt"), "w", encoding="utf-8").write("\n".join(A))

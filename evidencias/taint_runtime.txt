@@ -2,42 +2,42 @@ Taint em tempo de execução — Embarque Assistido com 4 pedidos fictícios
 
 ----------------------------------------------------------------------------------------------------
 CENÁRIO ANTES (guardião em modo monitorar)
-  pedidos atendidos: 4/4
-  dados pessoais que chegaram em cada saída: {'mqtt_publico': 16, 'log': 16, 'llm': 8, 'arquivo_texto': 12, 'console': 4}
-  ações do guardião: {'bloqueado': 0, 'mascarado': 0, 'vazou': 20, 'permitido (destino seguro)': 0}
-    19:58:19  vazou                      log            contato, identificador, saude  detectado por conteúdo  Nome de pessoa=A*** B*** M***; CPF=***.***.***-**; Condição de saúde ou deficiência=[dado de saúde oculto]
-    19:58:19  vazou                      mqtt_publico   contato, identificador, saude  detectado por conteúdo  Campo de nome de pessoa=************; Campo CPF=***.***.***-**; Campo de saúde=[dado de saúde oculto]
-    19:58:19  vazou                      llm            identificador, saude           detectado por conteúdo  CPF=***.***.***-**; Condição de saúde ou deficiência=[dado de saúde oculto]
-    19:58:19  vazou                      arquivo_texto  contato, identificador, saude  detectado por conteúdo  CPF=***.***.***-**; Condição de saúde ou deficiência=[dado de saúde oculto]; Telefone celular=(**) *****-**80
-    19:58:19  vazou                      log            contato                        detectado por conteúdo  Telefone celular=(**) *****-**80
-    19:58:19  vazou                      log            contato, identificador, saude  detectado por conteúdo  Nome de pessoa=C*** H*** D***; CPF=***.***.***-**; Condição de saúde ou deficiência=[dado de saúde oculto]
-    19:58:19  vazou                      mqtt_publico   contato, identificador, saude  detectado por conteúdo  Campo de nome de pessoa=************; Campo CPF=***.***.***-**; Campo de saúde=[dado de saúde oculto]
-    19:58:19  vazou                      llm            identificador, saude           detectado por conteúdo  CPF=***.***.***-**; Condição de saúde ou deficiência=[dado de saúde oculto]
-    19:58:19  vazou                      arquivo_texto  contato, identificador, saude  detectado por conteúdo  CPF=***.***.***-**; Condição de saúde ou deficiência=[dado de saúde oculto]; Telefone celular=(**) *****-**06
-    19:58:19  vazou                      log            contato                        detectado por conteúdo  Telefone celular=(**) *****-**06
-    19:58:19  vazou                      log            contato, identificador, saude  detectado por conteúdo  Nome de pessoa=J*** R***; CPF=***.***.***-**; Condição de saúde ou deficiência=[dado de saúde oculto]
-    19:58:19  vazou                      mqtt_publico   contato, identificador, saude  detectado por conteúdo  Campo de nome de pessoa=************; Campo CPF=***.***.***-**; Campo de saúde=[dado de saúde oculto]
-    ... +8 eventos
+  pedidos atendidos: 4/5
+  dados pessoais que chegaram em cada saída: {'mqtt_publico': 16, 'log': 16, 'llm': 8, 'arquivo_texto': 12, 'console': 4, 'tela_app': 4}
+  ações do guardião: {'bloqueado': 0, 'mascarado': 0, 'vazou': 21, 'permitido (destino seguro)': 0}
+    22:43:04  vazou                      log            contato, identificador, saude  detectado por conteúdo  Nome de pessoa=A*** B*** M***; CPF=***.813.***-03; Condição de saúde ou deficiência=[dado de saúde oculto]
+    22:43:04  vazou                      mqtt_publico   contato, identificador, saude  detectado por conteúdo  Campo de nome de pessoa=************; Campo de documento (CPF/RG)=***.813.***-03; Campo de saúde=[dado de saúde oculto]
+    22:43:04  vazou                      llm            identificador, saude           detectado por conteúdo  CPF=***.813.***-03; Condição de saúde ou deficiência=[dado de saúde oculto]
+    22:43:04  vazou                      arquivo_texto  contato, identificador, saude  detectado por conteúdo  CPF=***.813.***-03; Condição de saúde ou deficiência=[dado de saúde oculto]; Telefone celular=(**) *****-**80
+    22:43:04  vazou                      log            contato                        detectado por conteúdo  Telefone celular=(**) *****-**80
+    22:43:04  vazou                      log            contato, identificador, saude  detectado por conteúdo  Nome de pessoa=C*** H*** D***; CPF=***.730.***-73; Condição de saúde ou deficiência=[dado de saúde oculto]
+    22:43:04  vazou                      mqtt_publico   contato, identificador, saude  detectado por conteúdo  Campo de nome de pessoa=************; Campo de documento (CPF/RG)=***.730.***-73; Campo de saúde=[dado de saúde oculto]
+    22:43:04  vazou                      llm            identificador, saude           detectado por conteúdo  CPF=***.730.***-73; Condição de saúde ou deficiência=[dado de saúde oculto]
+    22:43:04  vazou                      arquivo_texto  contato, identificador, saude  detectado por conteúdo  CPF=***.730.***-73; Condição de saúde ou deficiência=[dado de saúde oculto]; Telefone celular=(**) *****-**06
+    22:43:04  vazou                      log            contato                        detectado por conteúdo  Telefone celular=(**) *****-**06
+    22:43:04  vazou                      log            contato, identificador, saude  detectado por conteúdo  Nome de pessoa=J*** R***; CPF=***.536.***-30; Condição de saúde ou deficiência=[dado de saúde oculto]
+    22:43:04  vazou                      mqtt_publico   contato, identificador, saude  detectado por conteúdo  Campo de nome de pessoa=************; Campo de documento (CPF/RG)=***.536.***-30; Campo de saúde=[dado de saúde oculto]
+    ... +9 eventos
 ----------------------------------------------------------------------------------------------------
 CENÁRIO GUARDIAO (guardião em modo bloquear)
-  pedidos atendidos: 4/4
-  dados pessoais que chegaram em cada saída: {'mqtt_publico': 0, 'log': 0, 'llm': 0, 'arquivo_texto': 0, 'console': 0}
-  ações do guardião: {'bloqueado': 20, 'mascarado': 0, 'vazou': 0, 'permitido (destino seguro)': 0}
-    19:58:19  bloqueado                  log            contato, identificador, saude  detectado por conteúdo  Nome de pessoa=A*** B*** M***; CPF=***.***.***-**; Condição de saúde ou deficiência=[dado de saúde oculto]
-    19:58:19  bloqueado                  mqtt_publico   contato, identificador, saude  detectado por conteúdo  Campo de nome de pessoa=************; Campo CPF=***.***.***-**; Campo de saúde=[dado de saúde oculto]
-    19:58:19  bloqueado                  llm            identificador, saude           detectado por conteúdo  CPF=***.***.***-**; Condição de saúde ou deficiência=[dado de saúde oculto]
-    19:58:19  bloqueado                  arquivo_texto  contato, identificador, saude  detectado por conteúdo  CPF=***.***.***-**; Condição de saúde ou deficiência=[dado de saúde oculto]; Telefone celular=(**) *****-**80
-    19:58:19  bloqueado                  log            contato                        detectado por conteúdo  Telefone celular=(**) *****-**80
-    19:58:19  bloqueado                  log            contato, identificador, saude  detectado por conteúdo  Nome de pessoa=C*** H*** D***; CPF=***.***.***-**; Condição de saúde ou deficiência=[dado de saúde oculto]
-    19:58:19  bloqueado                  mqtt_publico   contato, identificador, saude  detectado por conteúdo  Campo de nome de pessoa=************; Campo CPF=***.***.***-**; Campo de saúde=[dado de saúde oculto]
-    19:58:19  bloqueado                  llm            identificador, saude           detectado por conteúdo  CPF=***.***.***-**; Condição de saúde ou deficiência=[dado de saúde oculto]
-    19:58:19  bloqueado                  arquivo_texto  contato, identificador, saude  detectado por conteúdo  CPF=***.***.***-**; Condição de saúde ou deficiência=[dado de saúde oculto]; Telefone celular=(**) *****-**06
-    19:58:19  bloqueado                  log            contato                        detectado por conteúdo  Telefone celular=(**) *****-**06
-    19:58:19  bloqueado                  log            contato, identificador, saude  detectado por conteúdo  Nome de pessoa=J*** R***; CPF=***.***.***-**; Condição de saúde ou deficiência=[dado de saúde oculto]
-    19:58:19  bloqueado                  mqtt_publico   contato, identificador, saude  detectado por conteúdo  Campo de nome de pessoa=************; Campo CPF=***.***.***-**; Campo de saúde=[dado de saúde oculto]
-    ... +8 eventos
+  pedidos atendidos: 4/5
+  dados pessoais que chegaram em cada saída: {'mqtt_publico': 0, 'log': 0, 'llm': 0, 'arquivo_texto': 0, 'console': 0, 'tela_app': 0}
+  ações do guardião: {'bloqueado': 21, 'mascarado': 0, 'vazou': 0, 'permitido (destino seguro)': 0}
+    22:43:04  bloqueado                  log            contato, identificador, saude  detectado por conteúdo  Nome de pessoa=A*** B*** M***; CPF=***.813.***-03; Condição de saúde ou deficiência=[dado de saúde oculto]
+    22:43:04  bloqueado                  mqtt_publico   contato, identificador, saude  detectado por conteúdo  Campo de nome de pessoa=************; Campo de documento (CPF/RG)=***.813.***-03; Campo de saúde=[dado de saúde oculto]
+    22:43:04  bloqueado                  llm            identificador, saude           detectado por conteúdo  CPF=***.813.***-03; Condição de saúde ou deficiência=[dado de saúde oculto]
+    22:43:04  bloqueado                  arquivo_texto  contato, identificador, saude  detectado por conteúdo  CPF=***.813.***-03; Condição de saúde ou deficiência=[dado de saúde oculto]; Telefone celular=(**) *****-**80
+    22:43:04  bloqueado                  log            contato                        detectado por conteúdo  Telefone celular=(**) *****-**80
+    22:43:04  bloqueado                  log            contato, identificador, saude  detectado por conteúdo  Nome de pessoa=C*** H*** D***; CPF=***.730.***-73; Condição de saúde ou deficiência=[dado de saúde oculto]
+    22:43:04  bloqueado                  mqtt_publico   contato, identificador, saude  detectado por conteúdo  Campo de nome de pessoa=************; Campo de documento (CPF/RG)=***.730.***-73; Campo de saúde=[dado de saúde oculto]
+    22:43:04  bloqueado                  llm            identificador, saude           detectado por conteúdo  CPF=***.730.***-73; Condição de saúde ou deficiência=[dado de saúde oculto]
+    22:43:04  bloqueado                  arquivo_texto  contato, identificador, saude  detectado por conteúdo  CPF=***.730.***-73; Condição de saúde ou deficiência=[dado de saúde oculto]; Telefone celular=(**) *****-**06
+    22:43:04  bloqueado                  log            contato                        detectado por conteúdo  Telefone celular=(**) *****-**06
+    22:43:04  bloqueado                  log            contato, identificador, saude  detectado por conteúdo  Nome de pessoa=J*** R***; CPF=***.536.***-30; Condição de saúde ou deficiência=[dado de saúde oculto]
+    22:43:04  bloqueado                  mqtt_publico   contato, identificador, saude  detectado por conteúdo  Campo de nome de pessoa=************; Campo de documento (CPF/RG)=***.536.***-30; Campo de saúde=[dado de saúde oculto]
+    ... +9 eventos
 ----------------------------------------------------------------------------------------------------
 CENÁRIO CORRIGIDO (guardião em modo bloquear)
-  pedidos atendidos: 4/4
-  dados pessoais que chegaram em cada saída: {'mqtt_publico': 0, 'log': 0, 'llm': 0, 'arquivo_texto': 0, 'console': 0}
+  pedidos atendidos: 4/5
+  dados pessoais que chegaram em cada saída: {'mqtt_publico': 0, 'log': 0, 'llm': 0, 'arquivo_texto': 0, 'console': 0, 'tela_app': 0}
   ações do guardião: {'bloqueado': 0, 'mascarado': 0, 'vazou': 0, 'permitido (destino seguro)': 0}

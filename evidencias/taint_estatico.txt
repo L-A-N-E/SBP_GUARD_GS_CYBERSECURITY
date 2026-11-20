@@ -15,10 +15,10 @@ ALVO: SBP — código real do totem e do servidor  (GS2026_IOT_S.P.B)
   VAZAMENTO  BAIXA    FONTE servidor_sbp.py:68  parâmetro 'token'
                        SINK  servidor_sbp.py:124  saída no console/terminal (vai parar em logs)
                              print('token: %s' % ('...%s (%d caracteres)' % (self.token[-4:], len(self.token)) if self.token else 'NAO ENCONTRADO (.env)'))
-  VAZAMENTO  BAIXA    FONTE servidor_sbp.py:54  variável de ambiente SPTRANS_TOKEN
+  VAZAMENTO  BAIXA    FONTE servidor_sbp.py:57  leitura do arquivo .env
                        SINK  servidor_sbp.py:314  saída no console/terminal (vai parar em logs)
                              print('[olhovivo]', 'token carregado (...%s)' % tok[-4:] if tok else 'sem token: rodando so com a grade GTFS')
-  VAZAMENTO  BAIXA    FONTE servidor_sbp.py:57  leitura do arquivo .env
+  VAZAMENTO  BAIXA    FONTE servidor_sbp.py:54  variável de ambiente SPTRANS_TOKEN
                        SINK  servidor_sbp.py:314  saída no console/terminal (vai parar em logs)
                              print('[olhovivo]', 'token carregado (...%s)' % tok[-4:] if tok else 'sem token: rodando so com a grade GTFS')
 
@@ -32,36 +32,45 @@ ALVO: Embarque Assistido v1 (vulnerável)  (prototipo/embarque_vulneravel.py)
 
 [Motor PII] 0 achado(s)
 
-[Taint analysis] 10 fluxo(s)
+[Taint analysis] 13 fluxo(s)
   VAZAMENTO  CRITICA  FONTE prototipo/embarque_vulneravel.py:24  parâmetro 'corpo_requisicao' → campo 'condicao'
-                       SINK  prototipo/embarque_vulneravel.py:30  publicação em broker MQTT público (qualquer pessoa pode assinar o tópico)
+                       SINK  prototipo/embarque_vulneravel.py:32  publicação em broker MQTT público (qualquer pessoa pode assinar o tópico)
                              broker.publish(TOPICO + '/embarque', json.dumps(aviso, ensure_ascii=False))
   VAZAMENTO  CRITICA  FONTE prototipo/embarque_vulneravel.py:24  parâmetro 'corpo_requisicao' → campo 'condicao'
-                       SINK  prototipo/embarque_vulneravel.py:32  envio para modelo de IA (LLM)
+                       SINK  prototipo/embarque_vulneravel.py:34  envio para modelo de IA (LLM)
                              enviar_para_ia(ia, f"Classifique a prioridade do embarque de {dados['nome']}, CPF {dados['cpf']}, condicao: {dados['condicao']}")
   VAZAMENTO  ALTA     FONTE prototipo/embarque_vulneravel.py:24  objeto 'dados' inteiro (contém condicao)
-                       SINK  prototipo/embarque_vulneravel.py:26  registro em log
+                       SINK  prototipo/embarque_vulneravel.py:27  mensagem de erro que volta para a tela do app (resposta HTTP sem autenticação)
+                             raise ValueError(f'pedido invalido, faltou a linha: {dados}')
+  VAZAMENTO  ALTA     FONTE prototipo/embarque_vulneravel.py:24  objeto 'dados' inteiro (contém condicao)
+                       SINK  prototipo/embarque_vulneravel.py:28  registro em log
                              log.info('novo pedido de embarque assistido: %s' % dados)
-  VAZAMENTO  ALTA     FONTE prototipo/embarque_vulneravel.py:24  parâmetro 'corpo_requisicao' → campo 'nome'
-                       SINK  prototipo/embarque_vulneravel.py:30  publicação em broker MQTT público (qualquer pessoa pode assinar o tópico)
+  VAZAMENTO  ALTA     FONTE prototipo/embarque_vulneravel.py:24  parâmetro 'corpo_requisicao' → campo 'telefone'
+                       SINK  prototipo/embarque_vulneravel.py:32  publicação em broker MQTT público (qualquer pessoa pode assinar o tópico)
                              broker.publish(TOPICO + '/embarque', json.dumps(aviso, ensure_ascii=False))
   VAZAMENTO  ALTA     FONTE prototipo/embarque_vulneravel.py:24  parâmetro 'corpo_requisicao' → campo 'nome'
-                       SINK  prototipo/embarque_vulneravel.py:32  envio para modelo de IA (LLM)
+                       SINK  prototipo/embarque_vulneravel.py:34  envio para modelo de IA (LLM)
                              enviar_para_ia(ia, f"Classifique a prioridade do embarque de {dados['nome']}, CPF {dados['cpf']}, condicao: {dados['condicao']}")
   VAZAMENTO  ALTA     FONTE prototipo/embarque_vulneravel.py:24  parâmetro 'corpo_requisicao' → campo 'condicao'
-                       SINK  prototipo/embarque_vulneravel.py:35  gravação em arquivo
+                       SINK  prototipo/embarque_vulneravel.py:37  gravação em arquivo
                              arquivo.write(f"{dados['cpf']};{dados['nome']};{dados['condicao']};{dados['telefone']}\n")
   VAZAMENTO  MEDIA    FONTE prototipo/embarque_vulneravel.py:24  parâmetro 'corpo_requisicao'
-                       SINK  prototipo/embarque_vulneravel.py:26  registro em log
+                       SINK  prototipo/embarque_vulneravel.py:27  mensagem de erro que volta para a tela do app (resposta HTTP sem autenticação)
+                             raise ValueError(f'pedido invalido, faltou a linha: {dados}')
+  VAZAMENTO  MEDIA    FONTE prototipo/embarque_vulneravel.py:24  objeto 'dados' inteiro (contém cpf, nome, telefone)
+                       SINK  prototipo/embarque_vulneravel.py:27  mensagem de erro que volta para a tela do app (resposta HTTP sem autenticação)
+                             raise ValueError(f'pedido invalido, faltou a linha: {dados}')
+  VAZAMENTO  MEDIA    FONTE prototipo/embarque_vulneravel.py:24  parâmetro 'corpo_requisicao'
+                       SINK  prototipo/embarque_vulneravel.py:28  registro em log
                              log.info('novo pedido de embarque assistido: %s' % dados)
   VAZAMENTO  MEDIA    FONTE prototipo/embarque_vulneravel.py:24  objeto 'dados' inteiro (contém cpf, nome, telefone)
-                       SINK  prototipo/embarque_vulneravel.py:26  registro em log
+                       SINK  prototipo/embarque_vulneravel.py:28  registro em log
                              log.info('novo pedido de embarque assistido: %s' % dados)
-  VAZAMENTO  MEDIA    FONTE prototipo/embarque_vulneravel.py:24  parâmetro 'corpo_requisicao' → campo 'nome'
-                       SINK  prototipo/embarque_vulneravel.py:35  gravação em arquivo
+  VAZAMENTO  MEDIA    FONTE prototipo/embarque_vulneravel.py:24  parâmetro 'corpo_requisicao' → campo 'telefone'
+                       SINK  prototipo/embarque_vulneravel.py:37  gravação em arquivo
                              arquivo.write(f"{dados['cpf']};{dados['nome']};{dados['condicao']};{dados['telefone']}\n")
   VAZAMENTO  MEDIA    FONTE prototipo/embarque_vulneravel.py:24  parâmetro 'corpo_requisicao' → campo 'telefone'
-                       SINK  prototipo/embarque_vulneravel.py:36  saída no console/terminal (vai parar em logs)
+                       SINK  prototipo/embarque_vulneravel.py:38  saída no console/terminal (vai parar em logs)
                              print('pedido registrado para', dados['nome'], 'tel', dados['telefone'])
 
 [Sanitizações reconhecidas] 0
@@ -75,6 +84,6 @@ ALVO: Embarque Assistido v2 (corrigida)  (prototipo/embarque_seguro.py)
 [Taint analysis] 0 fluxo(s)
 
 [Sanitizações reconhecidas] 3
-  prototipo/embarque_seguro.py:54  pseudonimizar(dados['cpf'])  (pessoal)
-  prototipo/embarque_seguro.py:55  minimizar_apoio(dados['condicao'])  (saude)
-  prototipo/embarque_seguro.py:62  criptografar(dados)  (entrada, pessoal, saude)
+  prototipo/embarque_seguro.py:66  pseudonimizar(dados['cpf'])  (pessoal)
+  prototipo/embarque_seguro.py:67  minimizar_apoio(dados['condicao'])  (saude)
+  prototipo/embarque_seguro.py:74  criptografar(dados)  (entrada, pessoal, saude)

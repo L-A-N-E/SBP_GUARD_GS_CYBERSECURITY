@@ -7,3 +7,6 @@ Alice Santos Bulhões - RM554499
 Eduardo Oliveira Cardoso Madid - RM556349
 Nicolas Haubricht Hainfellner - RM556259
 Guilherme da Cunha Melo - RM555310
+
+Link do GitHub: https://github.com/L-A-N-E/SBP_GUARD_GS_CYBERSECURITY
+Projeto S.B.P. auditado (IoT): https://github.com/L-A-N-E/GS2026_IOT_S.P.B

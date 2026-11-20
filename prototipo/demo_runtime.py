@@ -1,5 +1,7 @@
 """Roda o Embarque Assistido com cidadaos ficticios em 3 cenarios e mede os vazamentos.
 
+  (4 pedidos validos + 1 incompleto, que dispara o erro "estourando na tela do app")
+
   antes      versao vulneravel, guardiao so observando (o que vazaria hoje)
   guardiao   versao vulneravel, guardiao BLOQUEANDO cada saida insegura
   corrigido  versao corrigida, guardiao bloqueando (prova que ela nao vaza nada)
@@ -19,7 +21,7 @@ RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, RAIZ)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from sbp_guard.pii import Motor                                         # noqa: E402
+from sbp_guard.pii import Motor, mascarar_dado                          # noqa: E402
 from sbp_guard.taint_runtime import (Guardiao, BrokerProtegido, LogProtegido,  # noqa: E402
                                      IAProtegida, VazamentoBloqueado)
 import embarque_vulneravel                                               # noqa: E402
@@ -46,7 +48,13 @@ def cidadaos(qtd=4, semente=2026):
         out.append({"nome": nomes[i % 5], "cpf": gerar_cpf(rng), "condicao": cond[i % 5],
                     "telefone": "(11) 9%04d-%04d" % (rng.randint(1000, 9999), rng.randint(0, 9999)),
                     "ponto": p, "linha": l})
+    incompleto = dict(out[0], linha="")            # pedido mal preenchido: dispara o caminho de erro
+    out.append(incompleto)
     return out
+
+
+MSG_BLOQUEIO_TELA = {"mensagem": "Não foi possível concluir seu pedido agora. A resposta continha seus dados "
+                                 "pessoais e foi bloqueada para proteger sua privacidade."}
 
 
 class BrokerFalso:
@@ -99,10 +107,11 @@ def _logger(nome):
     return lg, cap
 
 
-def _medir_vazamento(motor, broker, cap, ia, arquivo, console):
+def _medir_vazamento(motor, broker, cap, ia, arquivo, console, telas):
     """Le tudo o que chegou nas saidas e conta dado pessoal (verdade independente do guardiao)."""
     saidas = {"mqtt_publico": [p for _, p in broker.mensagens], "log": cap.linhas, "llm": ia.prompts,
-              "arquivo_texto": arquivo.getvalue().splitlines() if arquivo else [], "console": console}
+              "arquivo_texto": arquivo.getvalue().splitlines() if arquivo else [], "console": console,
+              "tela_app": [json.dumps(c, ensure_ascii=False) for c in telas]}
     res = {}
     for nome, itens in saidas.items():
         n = 0
@@ -155,21 +164,29 @@ def cenario(nome, motor, pessoas):
         if protegido(g.verificar, texto, "log", "print no console") is not None:
             console.append(texto)
 
-    resultados = []
+    telas, resultados = [], []
+
+    def tela(status, corpo):                            # o que chega no celular do cidadao
+        saida = protegido(g.verificar, corpo, "tela_app", "resposta HTTP %d" % status)
+        telas.append(saida if saida is not None else MSG_BLOQUEIO_TELA)
+        resultados.append(corpo if status == 200 else None)
+
     if nome in ("antes", "guardiao"):
         embarque_vulneravel.log = L()
         embarque_vulneravel.print = print_prot          # sombreia o print so dentro do modulo
         for p in pessoas:
-            resultados.append(embarque_vulneravel.solicitar_embarque(json.dumps(p, ensure_ascii=False), B(), ia_prot, Arq()))
+            tela(*embarque_vulneravel.responder_ao_app(json.dumps(p, ensure_ascii=False), B(), ia_prot, Arq()))
         del embarque_vulneravel.print
     else:
         embarque_seguro.log = L()
         op = OperadorFalso(g)
         for p in pessoas:
-            resultados.append(embarque_seguro.solicitar_embarque(json.dumps(p, ensure_ascii=False), B(), ia_prot, cofre, op))
+            tela(*embarque_seguro.responder_ao_app(json.dumps(p, ensure_ascii=False), B(), ia_prot, cofre, op))
 
-    vaz = _medir_vazamento(motor, broker, cap, ia, arquivo, console)
-    return {"cenario": nome, "modo_guardiao": modo, "pedidos": len(pessoas),
+    vaz = _medir_vazamento(motor, broker, cap, ia, arquivo, console, telas)
+    validos = sum(1 for p in pessoas if p.get("linha"))
+    return {"cenario": nome, "modo_guardiao": modo, "pedidos": len(pessoas), "pedidos_validos": validos,
+            "telas_do_app": [mascarar_dado(t, motor) for t in telas[-1:]],     # relatorio so guarda versao mascarada
             "pedidos_atendidos": sum(1 for r in resultados if r and r.get("ok")),
             "dados_pessoais_que_chegaram_nas_saidas": vaz, "total_vazado": sum(vaz.values()),
             "guardiao": g.resumo(), "eventos": g.eventos,
@@ -184,6 +201,6 @@ def rodar(motor=None, qtd=4):
 
 if __name__ == "__main__":
     for c in rodar():
-        print("%-10s vazou=%-3d bloqueados=%-3d atendidos=%d/%d  por saida=%s" % (
-            c["cenario"], c["total_vazado"], c["guardiao"]["bloqueado"], c["pedidos_atendidos"], c["pedidos"],
+        print("%-10s vazou=%-3d bloqueados=%-3d atendidos=%d/%d validos  por saida=%s" % (
+            c["cenario"], c["total_vazado"], c["guardiao"]["bloqueado"], c["pedidos_atendidos"], c["pedidos_validos"],
             c["dados_pessoais_que_chegaram_nas_saidas"]))

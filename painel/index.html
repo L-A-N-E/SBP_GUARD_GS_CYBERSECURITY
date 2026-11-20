@@ -88,6 +88,24 @@
   .nota { color: var(--suave); font-size: 13px; }
   .vazio { color: var(--suave); padding: 10px 0; }
   .cats { display: grid; gap: 8px; }
+  .farol { display: inline-flex; gap: 6px; background: #1d272a; padding: 6px 9px; border-radius: 999px; vertical-align: middle; margin-left: 10px; }
+  .farol i { width: 14px; height: 14px; border-radius: 50%; background: #3a474b; display: block; }
+  .farol i.on.vermelho { background: #ff4d4d; box-shadow: 0 0 10px #ff4d4d; }
+  .farol i.on.amarelo { background: #ffc53d; box-shadow: 0 0 10px #ffc53d; }
+  .farol i.on.verde { background: #3ddc84; box-shadow: 0 0 10px #3ddc84; }
+  .msgs-grade { display: grid; grid-template-columns: 1fr 300px; gap: 18px; align-items: start; }
+  @media (max-width: 960px) { .msgs-grade { grid-template-columns: 1fr; } }
+  .msgs { display: grid; gap: 10px; }
+  .msg { display: grid; grid-template-columns: 22px 1fr; gap: 12px; padding: 12px 14px; border: 1px solid var(--borda); border-radius: 12px; }
+  .msg .luz { width: 16px; height: 16px; border-radius: 50%; margin-top: 4px; }
+  .luz.vermelho { background: #ff4d4d; } .luz.amarelo { background: #ffc53d; } .luz.verde { background: #3ddc84; }
+  .msg p { margin: 0; font-size: 16px; }
+  .msg code { display: block; margin-top: 6px; font-family: var(--mono); font-size: 11.5px; color: var(--suave); word-break: break-word; }
+  .celular { border: 10px solid #1d272a; border-radius: 30px; padding: 18px 14px 26px; background: #f7fafa; color: #1d272a; min-height: 300px; position: relative; }
+  .celular::before { content: ""; position: absolute; top: 6px; left: 50%; transform: translateX(-50%); width: 60px; height: 5px; border-radius: 3px; background: #1d272a; }
+  .celular h4 { margin: 8px 0 10px; font-size: 13px; color: #0f7a72; }
+  .celular .bolha { background: #fff; border: 1px solid #dde5e6; border-radius: 12px; padding: 12px; font-size: 14px; }
+  .celular .bolha.erro { font-family: var(--mono); font-size: 11.5px; color: #b42318; background: #fff4f2; border-color: #f5c2bb; word-break: break-word; }
   footer { text-align: center; color: var(--suave); font-size: 12px; padding: 4px 0 24px; }
 </style>
 </head>
@@ -122,7 +140,7 @@
         </svg>
         <div>
           <div class="indice" id="indiceTxt">—</div>
-          <span class="faixa" id="faixa">—</span>
+          <span class="faixa" id="faixa">—</span><span class="farol" id="farol" title="Farol de risco"><i class="vermelho"></i><i class="amarelo"></i><i class="verde"></i></span>
           <p class="frase" id="frase"></p>
         </div>
       </div>
@@ -130,12 +148,20 @@
     <section class="card">
       <h2>Antes × depois do SBP Guard</h2>
       <div class="kpis" id="kpis"></div>
-      <p class="nota" style="margin:12px 0 0">Números do teste em tempo de execução com 4 pedidos fictícios de Embarque Assistido. Nada foi enviado para a internet.</p>
+      <p class="nota" style="margin:12px 0 0">Números do teste em tempo de execução com 5 pedidos fictícios de Embarque Assistido (um deles incompleto, para forçar o erro). Nada foi enviado para a internet.</p>
     </section>
   </div>
 
   <section class="card">
-    <h2>O que isso significa para o cidadão <span class="nota" id="iaInfo" style="text-transform:none;letter-spacing:0;font-weight:400"></span></h2>
+    <h2>Mensagens para o cidadão <span class="nota" style="text-transform:none;letter-spacing:0;font-weight:400">· evento técnico do guardião traduzido pela IA para alguém de 60 anos, em 2 frases</span></h2>
+    <div class="msgs-grade">
+      <div class="msgs" id="mensagens"></div>
+      <div class="celular" aria-label="Tela do app do cidadão"><h4>SBP · Embarque Assistido</h4><div id="telaApp"></div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>O que cada falha significa para o cidadão <span class="nota" id="iaInfo" style="text-transform:none;letter-spacing:0;font-weight:400"></span></h2>
     <div class="alertas" id="alertas"></div>
   </section>
 
@@ -190,7 +216,7 @@ const SEV = { critica: 'crítica', alta: 'alta', media: 'média', baixa: 'baixa'
 const COR_FAIXA = { 'crítico': 'var(--critica)', 'alto': 'var(--alta)', 'moderado': 'var(--media)', 'baixo': 'var(--baixa)' };
 const CENARIOS = [
   { id: 'antes', rot: 'Sem proteção', sub: 'Embarque v1', alvo: 'v1',
-    frase: 'A versão 1 do Embarque Assistido manda CPF, condição de saúde e telefone para o broker MQTT público, para o log, para a IA e para um CSV.' },
+    frase: 'A versão 1 do Embarque Assistido manda CPF, condição de saúde e telefone para o broker MQTT público, o log, a IA, um CSV e até para a tela do app quando dá erro.' },
   { id: 'guardiao', rot: 'Com SBP Guard', sub: 'v1 + guardião', alvo: 'v1',
     frase: 'O mesmo código vulnerável, mas cada saída passa pelo guardião: o caminho do vazamento ainda existe no código, só que o dado não sai.' },
   { id: 'corrigido', rot: 'Corrigido', sub: 'Embarque v2', alvo: 'v2',
@@ -215,7 +241,8 @@ function desenhar() {
   $('faixa').textContent = 'risco ' + r.faixa; $('faixa').style.background = COR_FAIXA[r.faixa];
   $('arco').setAttribute('stroke-dasharray', Math.max(r.indice, 0.5) + ' 100'); $('arco').setAttribute('stroke', COR_FAIXA[r.faixa]);
   $('frase').textContent = c.frase;
-  kpis(); alertas(c); fluxos(c); runtime(); cats(r); motor();
+  document.querySelectorAll('#farol i').forEach(i => i.classList.toggle('on', i.classList.contains(r.farol)));
+  kpis(); mensagens(c); alertas(c); fluxos(c); runtime(); cats(r); motor();
 }
 
 function kpi(alvo, valor, rot, antes) {
@@ -230,7 +257,22 @@ function kpis() {
   kpi(k, rt.guardiao.guardiao.bloqueado, 'saídas inseguras bloqueadas pelo guardião');
   const v1 = R.alvos.find(a => a.id === 'v1'), v2 = R.alvos.find(a => a.id === 'v2');
   kpi(k, v2.fluxos_agrupados.filter(f => f.status === 'VAZAMENTO').length, 'caminhos de vazamento no código (taint)', v1.fluxos_agrupados.filter(f => f.status === 'VAZAMENTO').length);
-  kpi(k, rt.guardiao.pedidos_atendidos + '/' + rt.guardiao.pedidos, 'pedidos atendidos mesmo com bloqueio');
+  kpi(k, rt.guardiao.pedidos_atendidos + '/' + rt.guardiao.pedidos_validos, 'pedidos válidos atendidos mesmo com bloqueio');
+}
+
+function mensagens(c) {
+  const box = $('mensagens'), tela = $('telaApp'); box.textContent = ''; tela.textContent = '';
+  const ms = (R.mensagens_cidadao || []).filter(m => m.cenario === c.id);
+  const rt = Object.fromEntries(R.runtime.map(x => [x.cenario, x]));
+  if (c.id === 'sbp') { box.append(el('p', 'vazio', 'Auditoria de código (estática): não há eventos em tempo de execução neste cenário. Veja as falhas e correções abaixo.')); }
+  else if (!ms.length) { const m = el('div', 'msg'); m.append(el('span', 'luz verde')); const t = el('div'); t.append(el('p', null, 'Nenhum dado pessoal tentou sair por um caminho inseguro. Seus dados ficaram protegidos do início ao fim.'), el('code', null, 'SecurityEvent: none — guardião em modo bloquear, 0 bloqueios, 0 vazamentos')); m.append(t); box.append(m); }
+  ms.forEach(x => { const m = el('div', 'msg'); m.append(el('span', 'luz ' + x.farol)); const t = el('div'); t.append(el('p', null, x.mensagem), el('code', null, x.tecnico)); m.append(t); box.append(m); });
+  const cen = c.id === 'sbp' ? null : rt[c.id];
+  if (!cen) { tela.append(el('div', 'bolha', 'O app do cidadão não faz parte desta auditoria.')); return; }
+  const corpo = (cen.telas_do_app || [])[0] || {};
+  tela.append(el('div', 'nota', 'Pedido incompleto (sem a linha) — resposta que aparece na tela:'));
+  tela.append(el('div', corpo.erro ? 'bolha erro' : 'bolha', corpo.erro || corpo.mensagem || JSON.stringify(corpo)));
+  if (corpo.erro) tela.append(el('div', 'nota', '(mostrado aqui já mascarado pelo SBP Guard — o app real exibia os dados completos)'));
 }
 
 function alertas(c) {
@@ -255,7 +297,7 @@ function alertas(c) {
     box.append(d);
   });
 }
-const mapaDestino = t => ({ mqtt_publico: 'mqtt_publico', mqtt: 'mqtt_publico', log: 'log', console: 'log', llm: 'llm', arquivo: 'arquivo_texto' })[t];
+const mapaDestino = t => ({ mqtt_publico: 'mqtt_publico', mqtt: 'mqtt_publico', log: 'log', console: 'log', llm: 'llm', arquivo: 'arquivo_texto', erro_tela: 'tela_app' })[t];
 
 function fluxos(c) {
   const tb = $('fluxos'); tb.textContent = '';
@@ -280,7 +322,7 @@ function runtime() {
   const rt = Object.fromEntries(R.runtime.map(x => [x.cenario, x]));
   const antes = rt.antes.dados_pessoais_que_chegaram_nas_saidas;
   const bloq = {}; rt.guardiao.eventos.forEach(e => { if (e.acao === 'bloqueado') { const k = e.contexto.startsWith('print') ? 'console' : e.destino; bloq[k] = (bloq[k] || 0) + 1; } });
-  const nomes = { mqtt_publico: 'Broker MQTT público', log: 'Log da aplicação', llm: 'Prompt da IA', arquivo_texto: 'Arquivo CSV', console: 'Console (print)' };
+  const nomes = { mqtt_publico: 'Broker MQTT público', log: 'Log da aplicação', llm: 'Prompt da IA', arquivo_texto: 'Arquivo CSV', console: 'Console (print)', tela_app: 'Tela do app (erro 500)' };
   const max = Math.max(...Object.values(antes), 1);
   Object.keys(nomes).forEach(k => {
     const linha = el('div', 'barra-linha'); linha.append(el('span', null, nomes[k]));
@@ -349,6 +391,7 @@ $('bRodar').onclick = async () => {
       clearInterval(t); $('progBarra').style.width = '100%';
       $('bRodar').disabled = false; $('bRodar').textContent = 'Rodar auditoria';
       await carregar();
+      setTimeout(() => $('progresso').classList.remove('ativo'), 3500);
     }
   }, 400);
 };

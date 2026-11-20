@@ -11,6 +11,14 @@
       "validador": "cpf"
     },
     {
+      "id": "rg",
+      "nome": "RG",
+      "categoria": "identificador",
+      "lgpd": "Art. 5º, I — dado pessoal",
+      "severidade": "alta",
+      "padrao": "(?i:\\b(?:rg|r\\.g\\.|registro geral)\\b)[\\s:nº.]{0,6}(\\d{1,2}\\.?\\d{3}\\.?\\d{3}-?[\\dxX])(?!\\d)"
+    },
+    {
       "id": "cartao_sus",
       "nome": "Cartão Nacional de Saúde (CNS)",
       "categoria": "saude",
@@ -159,8 +167,8 @@
   "chaves": [
     {
       "id": "campo_cpf",
-      "padrao": "^(cpf|nr_cpf|num_cpf|documento)$",
-      "nome": "Campo CPF",
+      "padrao": "^(cpf|rg|nr_cpf|num_cpf|documento|doc|num_documento)$",
+      "nome": "Campo de documento (CPF/RG)",
       "categoria": "identificador",
       "severidade": "alta",
       "lgpd": "Art. 5º, I — dado pessoal"
